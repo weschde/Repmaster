@@ -178,6 +178,7 @@ button{cursor:pointer}
 .painbox{border:1.5px solid var(--pop);background:var(--surface);border-radius:14px;padding:12px 14px;display:grid;gap:10px}.painbox p{margin:0;font-size:14px}
 .pbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pbtns .btn{display:flex;align-items:center;justify-content:center;text-align:center;flex-direction:column;gap:2px;min-height:52px;height:auto;padding:8px 10px;line-height:1.2}.pbtns small{font-weight:500;font-size:12px;color:var(--muted)}
 .todayedit,.painbox{scroll-margin-top:72px}
+.nextstep{margin:12px 0 4px;padding:12px 14px;border-radius:14px;background:var(--accent-soft);display:grid;gap:4px}.nextstep b{font:600 15px var(--f-head);color:var(--accent-deep)}.nextstep p{margin:0;font-size:14px;color:var(--ink)}
 .hbtns{display:flex;gap:8px;align-items:center}.gearbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .sgrp{border-top:1px solid var(--line)}.sgrp:first-child{border-top:0}.sgrp .grp{border-top:0}.sbody{padding:2px 18px 18px;display:grid;gap:4px}.subh{font:600 15px var(--f-head);margin:14px 0 6px;color:var(--ink)}.sbody .seg{margin-top:4px}
 .vol{margin-top:14px;display:grid;gap:6px}.vol label{display:flex;justify-content:space-between;gap:10px;font-size:15px}.vol b{color:var(--accent-deep)}.vol input{width:100%;accent-color:var(--accent);height:32px}
@@ -404,18 +405,18 @@ function ladderSummary(ss){
   var ser=[];
   ss.forEach(function(x){
     var cur=ser[ser.length-1];
-    if(!cur||x.r===0||x.p!==cur.p||(x.b||1)!==cur.b||x.r<=cur.r){cur={p:x.p,b:x.b||1,r:x.r,reps:0};ser.push(cur)}
+    if(!cur||x.r===0||x.p!==cur.p||(x.b||1)!==cur.b||(x.w||0)!==cur.w||x.r<=cur.r){cur={p:x.p,b:x.b||1,w:x.w||0,r:x.r,reps:0};ser.push(cur)}
     cur.r=x.r; cur.reps+=x.v;
   });
   var total=ss.reduce(function(a,x){return a+x.v},0), full={}, part=[];
   ser.forEach(function(c){
-    var len=rungs(c.p,c.b).length, key=c.p*100+c.b;
+    var len=rungs(c.p,c.b).length, key=(c.p*100+c.b)*1000+Math.round((c.w||0)*10);
     if(c.r===len-1) full[key]=(full[key]||0)+1; else part.push(c);
   });
   var lines=Object.keys(full).map(Number).sort(function(a,b2){return a-b2}).map(function(pk){
-    return full[pk]+(full[pk]===1?' Leiter':' Leitern')+' ('+rungs(Math.floor(pk/100),pk%100).join(', ')+')';
+    return full[pk]+(full[pk]===1?' Leiter':' Leitern')+' ('+rungs(Math.floor(pk/100000),Math.floor(pk/1000)%100).join(', ')+')'+((pk%1000)>0?' +'+(pk%1000)/10+' kg':'');
   });
-  part.forEach(function(c){lines.push('1 Leiter unvollständig ('+rungs(c.p,c.b).slice(0,c.r+1).join(', ')+')')});
+  part.forEach(function(c){lines.push('1 Leiter unvollständig ('+rungs(c.p,c.b).slice(0,c.r+1).join(', ')+')'+(c.w>0?' +'+c.w+' kg':''))});
   return {lines:lines,total:total};
 }
 function fmtDur(t){t=Math.round(t);return t>=60?Math.floor(t/60)+':'+pad(t%60)+' min':t+' s'}
@@ -672,8 +673,7 @@ function goalsBlock(e){
 function panel(e){
   var step=e.ladder[e.level]||'', l=lastSet(e.id);
   var h='<div class="panel">';
-  h+='<div class="pfacts">'+(e.type==='ladder'?'':(e.type==='time'?'<p class="goal-l"><b>Heute:</b> '+esc(goalText(e).replace(/ \(Ziel bis [^)]*\)/,''))+'</p>'+(e.tmax>e.target?'<p class="goal-s">Wir arbeiten darauf hin, '+e.tmax+' s zu halten.</p>':''):'<p class="goal-l"><b>Ziel:</b> '+esc(goalText(e))+'</p>'))+
-     (l?'<p class="last">Letztes Mal: '+esc(l.s||'')+' · '+esc(fmtSet(l))+'</p>':'')+'</div>';
+  if(l&&e.type!=='ladder') h+='<p class="last">Zuletzt: '+((l.s&&l.s!==e.ladder[e.level])?esc(l.s)+' · ':'')+esc(fmtSet(l))+'</p>';
   var tdp=days[ymd(new Date())], pj=(tdp&&tdp.pain&&tdp.pain[e.id])||[];
   if(painAsk===e.id&&pj.length){
     h+='<div class="painbox"><p><b>'+esc(pj.join(', '))+' meldet sich.</b> Wie willst du heute weitermachen?</p><div class="pbtns">'+
@@ -746,7 +746,7 @@ function goalText(e){
     var n=e.skill?(isHi(e)?e.setsHi:e.setsLo):(e.sets||3);
     return n+' Sätze × '+(e.target||0)+' s'+(e.tmax>e.target?' (Ziel bis '+e.tmax+' s)':'');
   }
-  if(e.type==='ladder') return (e.series||3)+' Serien, Leiter '+rungs(e.peak||3,e.base).join('-');
+  if(e.type==='ladder') return (e.series||3)+' Serien, Leiter '+rungs(e.peak||3,e.base).join('-')+(e.weight>0?' · +'+e.weight+' kg':'');
   if(e.rmax) return (e.sets||3)+' Sätze × '+e.rmin+'–'+e.rmax+(e.per?' pro Bein':'');
   return 'frei';
 }
@@ -754,11 +754,11 @@ function subText(e){
   return [e.ladder[e.level]||'',goalText(e).replace(/ \(Ziel bis [^)]*\)/,'')].filter(Boolean).join(' · ');
 }
 function ladderDay(e,k){
-  var ss=setsOn(k,e.id), p=null, b=1, sn=e.series||3, done=0;
+  var ss=setsOn(k,e.id), p=null, b=1, w=0, sn=e.series||3, done=0;
   ss.forEach(function(s){
-    if(s.p!=null){p=s.p;b=s.b||1;if(s.sn)sn=s.sn;if(s.r===rungs(s.p,s.b).length-1)done++}
+    if(s.p!=null){p=s.p;b=s.b||1;w=s.w||0;if(s.sn)sn=s.sn;if(s.r===rungs(s.p,s.b).length-1)done++}
   });
-  return {k:k,p:p,b:b,sn:sn,done:done,fb:((days[k]&&days[k].fb)||{})[e.id]||null,ok:p!=null&&done>=sn};
+  return {k:k,p:p,b:b,w:w,sn:sn,done:done,fb:((days[k]&&days[k].fb)||{})[e.id]||null,ok:p!=null&&done>=sn};
 }
 function sugLadder(e,ses,k){
   var d=ladderDay(e,k), today=todayKey();
@@ -767,18 +767,24 @@ function sugLadder(e,ses,k){
     if(k<today) return {kind:'info',day:k,title:e.name+': dranbleiben',text:'Beim letzten Mal waren nicht alle '+d.sn+' Serien komplett. Bleib bei der Leiter '+rungs(d.p,d.b).join('-')+' mit '+d.sn+' Serien, bis du sie sauber schaffst.',why:''};
     return null;
   }
-  if(d.p!==(e.peak||3)||d.b!==(e.base||1)||d.sn!==(e.series||3)) return null;
+  if(d.p!==(e.peak||3)||d.b!==(e.base||1)||d.w!==(e.weight||0)||d.sn!==(e.series||3)) return null;
   var fb=d.fb||(k<today?'ok':null);
   if(!fb) return null;
   if(fb==='hard') return {kind:'info',day:k,title:e.name+': noch nicht steigern',text:'Du hast die letzte Einheit als hart bewertet. Bleib bei dieser Leiter, bis sie sich passend oder leicht anfühlt.',why:''};
   var prev=ses[ses.length-2], pd=prev?ladderDay(e,prev):null;
-  var twice=!!(pd&&pd.ok&&pd.p===d.p&&pd.b===d.b&&pd.sn===d.sn);
+  var twice=!!(pd&&pd.ok&&pd.p===d.p&&pd.b===d.b&&pd.w===d.w&&pd.sn===d.sn);
   if(fb!=='easy'&&!twice) return null;
   var why=fb==='easy'?'Du hast die Einheit als leicht bewertet.':'Zwei Einheiten in Folge komplett geschafft.';
   var smax=e.smax||5, per=sumR(d.p,d.b);
   if(d.sn<smax){
     var ns=d.sn+1;
     return {kind:'series',to:ns,day:k,title:e.name+': eine Serie dazu',text:ns+' statt '+d.sn+' Serien der Leiter '+rungs(d.p,d.b).join('-')+' ('+(ns*per)+' statt '+(d.sn*per)+' Wiederholungen).',why:why+' Mehr Volumen mit sauberen Wiederholungen, ohne bis ans Limit zu gehen.'};
+  }
+  var pcap=e.pcap||(rungs(d.p,d.b).length>5?8:6);
+  if(d.p+1>pcap){
+    var span=d.p-d.b, wp=Math.max(span+1,d.p-2), wb=wp-span, ws=e.lwstep||2.5, nw=(d.w||0)+ws;
+    var wser=Math.min(smax,Math.max(2,Math.round(d.sn*per/sumR(wp,wb))));
+    return {kind:'lweight',to:wp,base:wb,series:wser,weight:nw,day:k,title:e.name+': Zusatzgewicht',text:'+'+nw+' kg, Leiter '+rungs(wp,wb).join('-')+' mit '+wser+' Serien.',why:why+' Die Leiter ist bei Spitze '+d.p+' angekommen. Statt noch höher zu gehen, kommt Gewicht dazu und die Leiter startet wieder etwas niedriger. Das ist eine Faustregel von mir.'};
   }
   var np2=d.p+1, nb=d.b+1, nser=Math.max(2,Math.round(d.sn*per/sumR(np2,nb)));
   return {kind:'peak',to:np2,base:nb,series:nser,day:k,title:e.name+': Leiter nach oben schieben',text:'Neue Leiter '+rungs(np2,nb).join('-')+' mit '+nser+' Serien ('+(nser*sumR(np2,nb))+' Wiederholungen). Die Leiter bleibt bei '+rungs(np2,nb).length+' Stufen und startet höher.',why:why+' Du bist bei '+smax+' Serien angekommen. Statt die Leiter länger zu machen, beginnt sie bei einer höheren Zahl. Die Serienzahl sinkt, damit das Volumen ähnlich bleibt.'};
@@ -853,6 +859,7 @@ function applySug(e,s){
   function up(x){e.up=e.up||[];e.up.push({d:t,s:x})}
   if(s.kind==='series'){e.series=s.to;up(s.to+' Serien')}
   else if(s.kind==='peak'){e.peak=s.to;e.base=s.base||e.base;e.series=s.series;up('Leiter '+rungs(e.peak,e.base).join('-'))}
+  else if(s.kind==='lweight'){e.peak=s.to;e.base=s.base;e.series=s.series;e.weight=s.weight;up('+'+s.weight+' kg, Leiter '+rungs(e.peak,e.base).join('-'))}
   else if(s.kind==='stage'){e.level=Math.min(e.ladder.length-1,e.level+1);e.stageSince=t;if(e.type==='time'&&e.tmin)e.target=e.tmin;up(e.ladder[e.level])}
   else if(s.kind==='target'){e.target=s.to;if(s.raise)e.tmax=s.to;up('Ziel '+s.to+' s')}
   else if(s.kind==='weight'){e.wt=s.to;delete draft[e.id];up(s.to+' kg')}
@@ -1005,6 +1012,23 @@ function patternBlock(){
   h+='<p class="note">Pull: Klimmzüge, Front Lever. Push: Dips, Handstand. Beine: Split Squats, Pistols. Rumpf: Hollow Body, Pike Lifts. Eigene Übungen zählen nach der Gruppe, die du im Plan wählst. Orientierung aus der Forschung: Für Muskelaufbau gelten etwa 10 oder mehr Sätze pro Muskelgruppe und Woche als sinnvoll, die Studien waren aber meist mit Untrainierten. Für Skills wie Front Lever zählt eher Qualität als Menge.</p></section>';
   return h;
 }
+function nextStepHtml(e){
+  var t='', head='';
+  var nxt=e.ladder[e.level+1];
+  if(e.type==='time'){
+    var T=e.target||0,tmax=e.tmax||T,nmin=e.nmin||3;
+    if(nxt){head='Nächste Stufe: '+nxt;t='Du bist bei „'+(e.ladder[e.level]||'')+'". Das Ziel liegt jetzt bei '+T+' s'+(tmax>T?' und steigt bis '+tmax+' s':'')+'. Aufsteigen kannst du, wenn du '+nmin+' Sätze mit '+tmax+' s sauber hältst'+(e.skill?', frühestens nach '+minWeeks(e)+' Wochen in der Stufe':'')+'.'}
+    else{head='Letzte Stufe';t='Das Ziel steigt weiter in Schritten von '+(e.tstep||2)+' s.'}
+  }else if(e.type==='ladder'){
+    var pc=e.pcap||(rungs(e.peak||3,e.base).length>5?8:6);
+    head='Steigerung der Leiter';t='Zuerst mehr Serien (bis '+(e.smax||5)+'), dann wandert die Leiter nach oben. Ab Spitze '+pc+' kommt Zusatzgewicht dazu ('+(e.lwstep||2.5)+' kg Schritte)'+(e.weight>0?'. Aktuell +'+e.weight+' kg':'')+'.';
+  }else if(e.rmax){
+    if(e.weighted){head='Nächster Schritt: mehr Gewicht';t='Wenn alle '+(e.sets||3)+' Sätze '+e.rmax+' Wiederholungen erreichen, kommen '+(e.wstep||2.5)+' kg dazu.'}
+    else if(nxt){head='Nächste Stufe: '+nxt;t='Aufsteigen kannst du, wenn alle '+(e.sets||3)+' Sätze '+e.rmax+' Wiederholungen erreichen und die Ausführung sauber war.'}
+    else{head='Letzte Stufe';t='Wenn alle Sätze '+e.rmax+' Wiederholungen erreichen, rückt der Bereich um 2 Wiederholungen nach oben.'}
+  }
+  return t?'<div class="nextstep"><b>'+esc(head)+'</b><p>'+esc(t)+'</p></div>':'';
+}
 function viewStats(){
   tipData={};
   var N=statRange, goal=cfg.settings.goal||3, weeks=weeksData(N), since=weeks[0].key;
@@ -1034,6 +1058,7 @@ function viewStats(){
   h+='<section class="card pad"><h2>Fortschritt</h2><label class="sr" for="statsel">Übung</label><select id="statsel" class="sel">'+
     cfg.exercises.map(function(x){return '<option value="'+x.id+'"'+(x.id===statEx?' selected':'')+'>'+esc(x.name)+'</option>'}).join('')+'</select>';
   if(e){
+    h+=nextStepHtml(e);
     var pts=exSessions(e,since);
     var meta={ladder:['Wiederholungen pro Training, alle Serien zusammen','Wdh.'],time:['Beste Hold-Zeit pro Training','s'],reps:['Bester Satz pro Training','Wdh.']}[e.type]||['',''];
     h+='<p class="note" style="margin:10px 0 6px">'+esc(meta[0])+'</p>';
@@ -1141,7 +1166,15 @@ function ladderSettings(e){
     '<div class="row"><span>Start der Leiter</span><div class="stepper">'+
     '<button data-act="adj" data-f="base" data-id="'+e.id+'" data-d="-1" aria-label="Start niedriger">−</button>'+
     '<output>'+bs+'</output>'+
-    '<button data-act="adj" data-f="base" data-id="'+e.id+'" data-d="1" aria-label="Start höher">+</button></div></div>';
+    '<button data-act="adj" data-f="base" data-id="'+e.id+'" data-d="1" aria-label="Start höher">+</button></div></div>'+
+    '<div class="row"><span>Zusatzgewicht (kg)</span><div class="stepper">'+
+    '<button data-act="adj" data-f="lweight" data-id="'+e.id+'" data-d="-1" aria-label="Weniger Gewicht">−</button>'+
+    '<output>'+(e.weight||0)+'</output>'+
+    '<button data-act="adj" data-f="lweight" data-id="'+e.id+'" data-d="1" aria-label="Mehr Gewicht">+</button></div></div>'+
+    '<div class="row"><span>Gewicht ab Spitze</span><div class="stepper">'+
+    '<button data-act="adj" data-f="pcap" data-id="'+e.id+'" data-d="-1" aria-label="Früher Gewicht">−</button>'+
+    '<output>'+(e.pcap||(rungs(pk,bs).length>5?8:6))+'</output>'+
+    '<button data-act="adj" data-f="pcap" data-id="'+e.id+'" data-d="1" aria-label="Später Gewicht">+</button></div></div>';
   h+='<div class="row"><span>Serien pro Einheit</span><div class="stepper">'+
     '<button data-act="adj" data-f="series" data-id="'+e.id+'" data-d="-1" aria-label="Eine Serie weniger">−</button>'+
     '<output>'+tot+'</output>'+
@@ -1150,7 +1183,7 @@ function ladderSettings(e){
 }
 function ladderPanel(e){
   var st=ladderState(e), tot=plannedToday(e), pk=e.peak||3, bs=Math.min(e.base||1,pk);
-  var h='<p class="note">Serie '+st.series+' von '+tot+' · '+(tot*sumR(pk,bs))+' Wiederholungen geplant</p>';
+  var h='<p class="note">Serie '+st.series+' von '+tot+' · '+(tot*sumR(pk,bs))+' Wiederholungen geplant'+(e.weight>0?' · +'+e.weight+' kg':'')+'</p>';
   h+='<div class="rungs" role="list" aria-label="Stufen dieser Serie">'+st.rr.map(function(n,i){
     var cls='rung'+((!st.fresh&&i<st.r)?' on':'')+(i===st.r?' now':'');
     return '<span class="'+cls+'" role="listitem">'+n+'</span>';
@@ -1642,6 +1675,14 @@ document.addEventListener('click',function(ev){
         var np=Math.max(1,(e.peak||3)+d);
         if(np!==(e.peak||3)){e.peak=np;if((e.base||1)>np)e.base=np;if(d>0){e.up=e.up||[];e.up.push({d:ymd(new Date()),s:'Spitze '+np})}saveCfg()}
       }
+      else if(f==='lweight'){
+        var nw0=Math.max(0,Math.round(((e.weight||0)+d*(e.lwstep||2.5))*10)/10);
+        if(nw0!==(e.weight||0)){e.weight=nw0;saveCfg()}
+      }
+      else if(f==='pcap'){
+        var pc0=e.pcap||(rungs(e.peak||3,e.base).length>5?8:6);
+        e.pcap=Math.max(3,pc0+d);saveCfg()
+      }
       else if(f==='base'){
         var nb2=Math.min(e.peak||3,Math.max(1,(e.base||1)+d));
         if(nb2!==(e.base||1)){e.base=nb2;saveCfg()}
@@ -1732,7 +1773,7 @@ document.addEventListener('click',function(ev){
     case 'rung':
       if(!e) return;
       var ls=ladderState(e), reps=ls.rr[ls.r];
-      logSet(e,reps,0,withBase(ls,{p:ls.p,r:ls.r,sn:e.series||3}));
+      logSet(e,reps,e.weight||0,withBase(ls,{p:ls.p,r:ls.r,sn:e.series||3}));
       if(ls.r===ls.rr.length-1){audio();startRest(id)}
       advance(id);
       break;
@@ -1763,7 +1804,7 @@ document.addEventListener('click',function(ev){
       if(e){logSet(e,Math.max(1,e.target||10),0,{tg:e.target||0});advance(id);moreId=id}
       break;
     case 'ladderfull':
-      if(e){var lf=ladderState(e);for(var li=lf.r;li<lf.rr.length;li++){logSet(e,lf.rr[li],0,withBase(lf,{p:lf.p,r:li,sn:e.series||3}))}advance(id);moreId=id}
+      if(e){var lf=ladderState(e);for(var li=lf.r;li<lf.rr.length;li++){logSet(e,lf.rr[li],e.weight||0,withBase(lf,{p:lf.p,r:li,sn:e.series||3}))}advance(id);moreId=id}
       break;
     case 'tedit': editToday=!editToday; break;
     case 'hday': histOpen[v]=!histOpen[v]; break;
