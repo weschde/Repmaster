@@ -285,6 +285,36 @@ body.dragmode{-webkit-user-select:none;user-select:none;touch-action:none;oversc
 #cele .cf{position:absolute;top:-16px;width:9px;height:14px;border-radius:2px;opacity:0;animation:celfall var(--d) var(--w) cubic-bezier(.3,.1,.5,1) forwards}
 @keyframes celfall{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:.9;transform:translate(var(--x),105vh) rotate(var(--r))}}
 @media (prefers-reduced-motion:reduce){#cele,#cele *{animation-duration:.01s!important;animation-delay:0s!important}#cele .cf{display:none}.flame *{animation:none!important}}
+
+.hfil{display:flex;gap:6px;overflow-x:auto;margin:0 -16px 12px;padding:2px 16px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.hfil::-webkit-scrollbar{display:none}
+.hfil button{all:unset;flex:none;padding:8px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font:600 14px var(--f-body);color:var(--ink);cursor:pointer;white-space:nowrap}
+.hfil button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.hfil button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hfil .hsep{flex:none;width:1px;background:var(--line);margin:4px 2px}
+.hsum .tile b{font-size:24px}.hsum .tile .ts{font-size:12px}
+.tile b.sm{font-size:19px;line-height:1.2}.tile b.up{color:var(--accent)}.tile b.dn{color:var(--pop)}
+.whead{display:flex;justify-content:space-between;align-items:baseline;margin:18px 4px 8px;color:var(--muted);font-size:14px}.whead b{color:var(--ink);font:600 15px var(--f-head)}
+.wgoal{font:700 13px var(--f-body);padding:3px 10px;border-radius:999px;background:var(--surface2);color:var(--muted)}.wgoal.ok{background:var(--accent-soft);color:var(--accent-deep)}
+.hday:first-child .dayrow{border-top:0}
+.dayrow .dd b{font:600 16px var(--f-head);color:var(--ink)}
+.dayrow .tr{display:flex;flex-wrap:wrap;gap:4px 10px;font:600 13px var(--f-body)}
+.tr .up{color:var(--accent)}.tr .eq{color:var(--muted)}.tr .dn{color:var(--pop)}.tr .st{color:var(--pop)}.tr .nt{color:var(--muted)}
+.dayrow{min-height:62px;padding-top:8px;padding-bottom:8px}
+.hex{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.hex:first-child{border-top:0}
+.hex .hl{display:grid;gap:1px;min-width:0}.hex .hl b{font:600 15px var(--f-head)}.hex .hl small{color:var(--muted);font-size:13px}.hex .hl .hs{font-size:12px;line-height:1.4}
+.hex .hr,.hxrow .hv{display:grid;justify-items:end;align-content:start;gap:3px;text-align:right;flex:none}.hex .hr b,.hxrow .hv b{font:700 16px var(--f-head);white-space:nowrap}
+.star{font-style:normal;color:var(--pop);font-size:15px;font-weight:700}
+.tp{font:700 12px var(--f-body);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.tp-up{background:var(--accent-soft);color:var(--accent-deep)}.tp-dn{background:color-mix(in srgb,var(--pop) 16%,transparent);color:var(--pop)}.tp-eq,.tp-new{background:var(--surface2);color:var(--muted)}
+.hup{margin:8px 0 0;font:600 14px var(--f-body);color:var(--accent-deep)}
+.hnote{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface2);font-size:14px;line-height:1.45}
+.hnote::before{content:"Notiz · ";font-weight:700;color:var(--muted)}
+.hxrow{all:unset;box-sizing:border-box;width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid var(--line);cursor:pointer}
+.hxrow:first-child{border-top:0}.hxrow:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.hxrow .hd{display:grid;gap:1px;min-width:0}.hxrow .hd b{font:600 15px var(--f-head)}.hxrow .hd small{color:var(--muted);font-size:13px}
+.hxbody{padding:0 18px 12px;font-size:13px;color:var(--muted);line-height:1.5}
+.hmore{display:block;margin:12px auto 4px}
+.hx .tiles{margin:0}
 #splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:max(8vh,env(safe-area-inset-top,0px)) !important;gap:10px;background:linear-gradient(165deg,#0B8579,#053f3a);color:#fff;text-align:center;padding:24px;transition:opacity .4s;cursor:pointer}
 #splash.out{opacity:0;pointer-events:none}
 #splash .glow{position:absolute;top:50%;left:50%;margin:-70vmin 0 0 -70vmin;width:140vmin;height:140vmin;border-radius:50%;background:radial-gradient(circle,rgba(90,240,215,.35),rgba(90,240,215,0) 60%);opacity:0;transform:scale(.4);animation:splglow 3s 1.1s ease-out forwards}
@@ -1489,49 +1519,141 @@ function viewToday(){
   h+=noteCardHtml();
   return h;
 }
+var histFil='all', histWeeks=6;
+function kgTxt(x){return String(Math.round(x*100)/100).replace('.',',')}
+function exDayMetric(ss){
+  var k=ss[0].k, m={k:k,n:ss.length,w:0,v:0,txt:'',sub:''};
+  if(k==='time'){
+    m.v=Math.max.apply(null,ss.map(function(x){return x.v}));
+    m.txt=m.v+' s'; m.sub=ss.map(function(x){return x.v}).join(' · ')+' s'+holdTotal(ss);
+  }else if(k==='ladder'){
+    var L=ladderSummary(ss); m.v=L.total; m.w=Math.max.apply(null,ss.map(function(x){return x.w||0}));
+    m.txt=L.total+' Wdh.'+(m.w>0?' +'+kgTxt(m.w)+' kg':''); m.sub=L.lines.join(' · ');
+  }else{
+    var bs=ss[0]; ss.forEach(function(x){if((x.w||0)*1000+x.v>(bs.w||0)*1000+bs.v) bs=x});
+    m.v=bs.v; m.w=bs.w||0; m.txt=bs.v+(m.w>0?' × '+kgTxt(m.w)+' kg':' Wdh.'); m.sub=ss.map(function(x){return x.v+(x.w>0?'×'+kgTxt(x.w):'')}).join(' · ')+(m.w>0?' kg':' Wdh.');
+  }
+  return m;
+}
+function cmpMetric(a,b){
+  if(!b) return null;
+  if((a.w||0)!==(b.w||0)){var dw=(a.w||0)-(b.w||0);return {d:dw>0?1:-1,txt:(dw>0?'+':'−')+kgTxt(Math.abs(dw))+' kg'}}
+  var dv=a.v-b.v, u=a.k==='time'?' s':' Wdh.';
+  return {d:dv>0?1:dv<0?-1:0,txt:dv===0?'gleich':(dv>0?'+':'−')+Math.abs(dv)+u};
+}
+/* every training day, every exercise: value, change against the last session on the same stage, record flag */
+function histData(){
+  var out={}, last={}, lastEx={}, best={};
+  dayKeys().forEach(function(k){
+    var gr={}, ord=[];
+    days[k].sets.forEach(function(x){var g=x.e+'|'+(x.s||'');if(!gr[g]){gr[g]=[];ord.push(g)}gr[g].push(x)});
+    out[k]=ord.map(function(g){
+      var ss=gr[g], eid=ss[0].e, ex=getEx(eid), m=exDayMetric(ss), c=cmpMetric(m,last[g]), sc=prScore(ss);
+      if(!c&&lastEx[eid]!=null&&lastEx[eid]!==(ss[0].s||'')) c={d:1,txt:'neue Stufe',stage:true};
+      var pr=best[g]!=null&&sc>best[g];
+      if(best[g]==null||sc>best[g]) best[g]=sc;
+      last[g]=m; lastEx[eid]=ss[0].s||'';
+      return {e:eid,name:ex?ex.name:ss[0].n,stage:ss[0].s||'',m:m,c:c,pr:pr,ss:ss,fb:(days[k].fb||{})[eid]};
+    });
+  });
+  return out;
+}
+function trendPill(c){
+  if(!c) return '<span class="tp tp-new">erstes Mal</span>';
+  return '<span class="tp '+(c.d>0?'tp-up':c.d<0?'tp-dn':'tp-eq')+'">'+(c.d>0?'▲ ':c.d<0?'▼ ':'')+esc(c.txt)+'</span>';
+}
+function shortYmd(k){var d=parseYmd(k);return d.getDate()+'.'+(d.getMonth()+1)+'.'}
 function viewHistory(){
   var h='<header class="top"><h1>Verlauf</h1>'+gearBtn()+'</header>';
-  h+='<section class="card pad"><h2>Bestwerte auf aktueller Stufe</h2>';
-  var allSets=[];
-  Object.keys(days).forEach(function(k){(days[k].sets||[]).forEach(function(s){allSets.push(s)})});
-  cfg.exercises.forEach(function(e){
-    var step=e.ladder[e.level]||'';
-    var vs=allSets.filter(function(s){return s.e===e.id&&s.s===step});
-    var best=null;
-    vs.forEach(function(s){if(!best||s.v>best.v||(s.v===best.v&&(s.w||0)>(best.w||0))) best=s});
-    h+='<div class="best"><span>'+esc(e.name)+'<span class="sub">'+esc(step)+'</span></span><span class="v">'+(best?esc(best.p!=null?'Leiter bis '+best.p:fmtSet(best)):'–')+'</span></div>';
-  });
-  h+='</section>';
-  var ups=[];
-  cfg.exercises.forEach(function(e){(e.up||[]).forEach(function(u){ups.push({d:u.d,n:e.name,s:u.s})})});
-  if(ups.length){
-    ups.sort(function(a,b){return a.d<b.d?1:-1});
-    h+='<section class="card pad"><h2>Aufstiege</h2>';
-    ups.slice(0,12).forEach(function(u){h+='<div class="best"><span>'+esc(u.n)+'</span><span><b>'+esc(u.s)+'</b> <span class="note">'+esc(labelDate(parseYmd(u.d)))+'</span></span></div>'});
-    h+='</section>';
-  }
-  var keys=Object.keys(days).filter(function(k){return (days[k].sets||[]).length||days[k].note}).sort().reverse().slice(0,30);
-  h+='<section class="card"><div class="day"><h2 style="margin:0">Trainingstage</h2></div>';
-  if(!keys.length) h+='<div class="day"><p>Noch nichts erfasst. Dein erster Satz erscheint hier.</p></div>';
-  var prAll=prMap();
-  keys.forEach(function(k){
-    var groups={}, order=[];
-    days[k].sets.forEach(function(s){var g=s.e+'|'+(s.s||'');if(!groups[g]){groups[g]=[];order.push(g)}groups[g].push(s)});
-    var hop=!!histOpen[k], nEx=order.length;
-    h+='<div class="day dayc"><button class="dayrow" data-act="hday" data-v="'+k+'" aria-expanded="'+hop+'"><span class="dd">'+esc(labelDate(parseYmd(k)))+((days[k].note&&!hop)?'<small class="np">'+esc(days[k].note.replace(/\s+/g,' ').slice(0,70))+(days[k].note.length>70?'…':'')+'</small>':'')+'</span>'+(days[k].plan?'<span class="plb plb-'+esc(days[k].plan)+'">'+esc(days[k].plan)+'</span>':'')+'<span class="dm">'+(prAll[k]?'<span class="star" title="Neue Bestleistung">★</span> ':'')+(dayMinutes(k)?dayMinutes(k)+' min':(nEx?nEx+' Üb.':''))+'</span><i>'+(hop?'▴':'▾')+'</i></button>';
-    if(!hop){h+='</div>';return}
-    h+='<div class="daybody">';
-    if(prAll[k]) h+='<p class="pr"><b>★ Neue Bestleistung</b><br>'+prAll[k].map(esc).join('<br>')+'</p>';
-    if(days[k].note) h+='<p class="note">Notiz: '+esc(days[k].note)+'</p>';
-    var pls=painList(k); if(pls.length) h+='<p class="note">Beschwerden: '+esc(pls.join(', '))+'</p>';
-    order.forEach(function(g){
-      var ss=groups[g], ex=getEx(ss[0].e);
-      var fbv=(days[k].fb||{})[ss[0].e];
-      h+='<p><b>'+esc(ex?ex.name:ss[0].n)+'</b>'+(ss[0].s?' · '+esc(ss[0].s):'')+(ss[0].p!=null?'</p>'+(function(){var L=ladderSummary(ss);return '<p class="lad">'+L.lines.map(esc).join('<br>')+'<br><span class="note">'+L.total+' Wdh. gesamt'+(fbv?' · '+({easy:'leicht',ok:'passt',hard:'hart'}[fbv]||''):'')+'</span></p>'})():': '+ss.map(function(s){return esc(fmtSet(s))}).join(' · ')+esc(holdTotal(ss))+(fbv?' · '+({easy:'leicht',ok:'passt',hard:'hart'}[fbv]||''):'')+'</p>');
+  var HD=histData(), all=dayKeys().slice().reverse(), goal=cfg.settings.goal||3;
+  var ups={}; cfg.exercises.forEach(function(e){(e.up||[]).forEach(function(u){(ups[u.d]=ups[u.d]||[]).push({n:e.name,s:u.s})})});
+  var withData=cfg.exercises.filter(function(e){return all.some(function(k){return HD[k].some(function(r){return r.e===e.id})})});
+  if(histFil!=='all'&&histFil!=='A'&&histFil!=='B'&&!getEx(histFil)) histFil='all';
+  /* filter chips */
+  h+='<div class="hfil" role="group" aria-label="Filter">'+[['all','Alle'],['A','Einheit A'],['B','Einheit B']].map(function(o){return '<button aria-pressed="'+(histFil===o[0])+'" data-act="hfil" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+
+     '<span class="hsep" aria-hidden="true"></span>'+withData.map(function(e){return '<button aria-pressed="'+(histFil===e.id)+'" data-act="hfil" data-v="'+e.id+'">'+esc(e.name)+'</button>'}).join('')+'</div>';
+  if(!all.length) return h+'<section class="card pad"><p>Noch nichts erfasst. Dein erstes Training erscheint hier.</p></section>';
+
+  var exF=getEx(histFil);
+  if(exF){
+    /* one exercise across all sessions */
+    var rows=all.map(function(k){var r=HD[k].filter(function(x){return x.e===exF.id});return r.length?{k:k,r:r}:null}).filter(Boolean);
+    var cur=exF.ladder[exF.level]||'', onStage=rows.filter(function(x){return x.r.some(function(y){return y.stage===cur})});
+    var lastR=rows[0]&&rows[0].r[rows[0].r.length-1];
+    var bestR=null; onStage.forEach(function(x){x.r.forEach(function(y){if(y.stage===cur&&(!bestR||prScore(y.ss)>prScore(bestR.ss)))bestR=y;})});
+    var cut=ymd(new Date(Date.now()-28*864e5)), old=null;
+    onStage.forEach(function(x){if(x.k<=cut&&!old) old=x.r.filter(function(y){return y.stage===cur})[0]});
+    if(!old&&onStage.length>1) old=onStage[onStage.length-1].r.filter(function(y){return y.stage===cur})[0];
+    var c4=lastR&&old&&lastR.stage===cur?cmpMetric(lastR.m,old.m):null;
+    h+='<section class="card pad hx"><h2>'+esc(exF.name)+'</h2><p class="note" style="margin:-4px 0 10px">Aktuelle Stufe: '+esc(cur)+' · '+rows.length+(rows.length===1?' Training':' Trainings')+'</p>'+
+       '<div class="tiles three">'+
+       '<div class="tile"><span class="tl">Zuletzt</span><b class="sm">'+(lastR?esc(lastR.m.txt):'–')+'</b><span class="ts">'+(rows[0]?esc(shortYmd(rows[0].k)):'')+'</span></div>'+
+       '<div class="tile"><span class="tl">Bestwert</span><b class="sm">'+(bestR?esc(bestR.m.txt):'–')+'</b><span class="ts">auf dieser Stufe</span></div>'+
+       '<div class="tile"><span class="tl">Seit 4 Wo.</span><b class="sm '+(c4?(c4.d>0?'up':c4.d<0?'dn':''):'')+'">'+(c4?esc((c4.d>0?'▲ ':c4.d<0?'▼ ':'')+c4.txt):'–')+'</b><span class="ts">'+(old?'vs. '+esc(shortYmd(rows.filter(function(x){return x.r.indexOf(old)>=0})[0].k)):'noch zu wenig Daten')+'</span></div></div></section>';
+    h+='<section class="card">';
+    rows.slice(0,histWeeks*3).forEach(function(x){
+      x.r.forEach(function(y){
+        var op=!!histOpen[x.k+'|'+exF.id+'|'+y.stage];
+        h+='<button class="hxrow" data-act="hday" data-v="'+esc(x.k+'|'+exF.id+'|'+y.stage)+'" aria-expanded="'+op+'"><span class="hd"><b>'+esc(labelDate(parseYmd(x.k)))+'</b><small>'+esc(y.stage)+(days[x.k].plan?' · Einheit '+esc(days[x.k].plan):'')+'</small></span>'+
+           '<span class="hv"><b>'+(y.pr?'<i class="star" aria-label="Bestleistung">★</i> ':'')+esc(y.m.txt)+'</b>'+trendPill(y.c)+'</span></button>';
+        if(op) h+='<div class="hxbody">'+esc(y.m.sub)+(y.fb?' · Gefühl: '+({easy:'leicht',ok:'passt',hard:'hart'}[y.fb]||''):'')+(days[x.k].note?'<br><span class="note">Notiz: '+esc(days[x.k].note)+'</span>':'')+'</div>';
+      });
     });
-    h+='</div></div>';
+    if(rows.length>histWeeks*3) h+='<button class="btn hmore" data-act="hmore">Ältere anzeigen</button>';
+    h+='</section>';
+    h+='<p class="note" style="text-align:center;margin:4px 0 16px">Der Pfeil vergleicht mit dem vorherigen Training auf derselben Stufe. Den Verlauf als Diagramm findest du in der Statistik.</p>';
+    return h;
+  }
+
+  /* overview of the last 4 weeks */
+  var keys=all.filter(function(k){return histFil==='all'||days[k].plan===histFil});
+  var since=ymd(new Date(Date.now()-27*864e5)), rec=keys.filter(function(k){return k>=since});
+  var nUp=0,nCmp=0,nPr=0,mins=0,nm=0;
+  rec.forEach(function(k){HD[k].forEach(function(r){if(r.c){nCmp++;if(r.c.d>0)nUp++}if(r.pr)nPr++});var m=dayMinutes(k);if(m){mins+=m;nm++}});
+  h+='<div class="tiles three hsum">'+
+     '<div class="tile"><span class="tl">Trainings</span><b>'+rec.length+'</b><span class="ts">letzte 4 Wochen</span></div>'+
+     '<div class="tile"><span class="tl">Besser als zuvor</span><b>'+(nCmp?Math.round(nUp/nCmp*100)+' %':'–')+'</b><span class="ts">'+nUp+' von '+nCmp+' Übungen</span></div>'+
+     '<div class="tile"><span class="tl">Bestleistungen</span><b>'+(nPr?'★ '+nPr:'0')+'</b><span class="ts">'+(nm?'Ø '+Math.round(mins/nm)+' min pro Training':'letzte 4 Wochen')+'</span></div></div>';
+
+  /* sessions grouped by week */
+  var weeksShown=0, curW=null, open=false, mk0=ymd(monday(new Date()));
+  keys.forEach(function(k){
+    var mk=ymd(monday(parseYmd(k)));
+    if(mk!==curW){
+      if(weeksShown>=histWeeks){curW='stop';return}
+      if(curW==='stop') return;
+      if(open) h+='</section>';
+      curW=mk; weeksShown++; open=true;
+      var md=parseYmd(mk), su=new Date(md); su.setDate(su.getDate()+6);
+      var nW=all.filter(function(x){return ymd(monday(parseYmd(x)))===mk}).length;
+      h+='<div class="whead"><span><b>'+(mk===mk0?'Diese Woche':'KW '+isoWeek(md))+'</b> · '+md.getDate()+'.'+(md.getMonth()+1)+'.–'+su.getDate()+'.'+(su.getMonth()+1)+'.</span><span class="wgoal'+(nW>=goal?' ok':'')+'">'+(nW>=goal?'✓ ':'')+nW+'/'+goal+'</span></div><section class="card">';
+    }
+    if(curW==='stop') return;
+    var R=HD[k], up=R.filter(function(r){return r.c&&r.c.d>0}).length, eq=R.filter(function(r){return r.c&&r.c.d===0}).length, dn=R.filter(function(r){return r.c&&r.c.d<0}).length, pr=R.filter(function(r){return r.pr}).length;
+    var hop=!!histOpen[k], m=dayMinutes(k), d=days[k];
+    h+='<div class="hday"><button class="dayrow" data-act="hday" data-v="'+k+'" aria-expanded="'+hop+'">'+
+       (d.plan?'<span class="plb plb-'+esc(d.plan)+'">'+esc(d.plan)+'</span>':'')+
+       '<span class="dd"><b>'+esc(labelDate(parseYmd(k)))+'</b><small class="tr">'+
+         (up?'<span class="up">▲ '+up+' besser</span>':'')+(eq?'<span class="eq">= '+eq+'</span>':'')+(dn?'<span class="dn">▼ '+dn+'</span>':'')+
+         (!up&&!eq&&!dn?'<span class="eq">'+R.length+' Übungen</span>':'')+(pr?'<span class="st">★ '+pr+'</span>':'')+(d.note?'<span class="nt" aria-label="mit Notiz">✎</span>':'')+
+       '</small></span><span class="dm">'+(m?m+' min':'')+'</span><i>'+(hop?'▴':'▾')+'</i></button>';
+    if(hop){
+      h+='<div class="daybody">';
+      R.forEach(function(r){
+        h+='<div class="hex"><div class="hl"><b>'+esc(r.name)+'</b><small>'+esc(r.stage)+'</small><small class="hs">'+esc(r.m.sub)+(r.fb?' · '+({easy:'leicht',ok:'passt',hard:'hart'}[r.fb]||''):'')+'</small></div>'+
+           '<div class="hr"><b>'+(r.pr?'<i class="star" aria-label="Bestleistung">★</i> ':'')+esc(r.m.txt)+'</b>'+trendPill(r.c)+'</div></div>';
+      });
+      (ups[k]||[]).forEach(function(u){h+='<p class="hup">⬆ '+esc(u.n)+': '+esc(u.s)+'</p>'});
+      var pls=painList(k); if(pls.length) h+='<p class="note">Beschwerden: '+esc(pls.join(', '))+'</p>';
+      if(d.note) h+='<p class="hnote">'+esc(d.note)+'</p>';
+      h+='</div>';
+    }
+    h+='</div>';
   });
-  return h+'</section>';
+  if(open) h+='</section>';
+  if(curW==='stop') h+='<button class="btn hmore" data-act="hmore">Ältere Wochen anzeigen</button>';
+  h+='<p class="note" style="text-align:center;margin:4px 0 16px">▲ ▼ vergleicht jede Übung mit dem vorherigen Training auf derselben Stufe.</p>';
+  return h;
 }
 function editForm(e){
   return '<div class="form">'+
@@ -1897,6 +2019,8 @@ document.addEventListener('click',function(ev){
       break;
     case 'tedit': editToday=!editToday; break;
     case 'hday': histOpen[v]=!histOpen[v]; break;
+    case 'hfil': histFil=v; histWeeks=6; histOpen={}; window.scrollTo(0,0); break;
+    case 'hmore': histWeeks+=6; break;
     case 'pa_go': painAsk=null; break;
     case 'pa_swap': painAsk=null; editToday=true; pendingScroll='.todayedit'; break;
     case 'pa_less':
