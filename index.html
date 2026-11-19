@@ -187,7 +187,7 @@ button{cursor:pointer}
 .vol{margin-top:14px;display:grid;gap:6px}.vol label{display:flex;justify-content:space-between;gap:10px;font-size:15px}.vol b{color:var(--accent-deep)}.vol input{width:100%;accent-color:var(--accent);height:32px}
 .dayc{padding:0;border-top:0}.dayrow{width:100%;display:flex;align-items:center;gap:10px;min-height:56px;padding:0 18px;background:transparent;border:0;border-top:1px solid var(--line);color:var(--ink);font:600 16px var(--f-body);text-align:left;cursor:pointer}
 .dayrow .dd{flex:1;min-width:0}.dayrow .dm{color:var(--muted);font-size:13px;font-weight:600}.dayrow i{color:var(--muted);font-style:normal;font-size:13px}
-.plb{min-width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font:700 14px var(--f-head);background:var(--accent-soft);color:var(--accent-deep)}.plb-B{background:var(--pop);color:var(--pop-ink)}
+.plb{min-width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font:700 14px var(--f-head);background:var(--accent-soft);color:var(--accent-deep)}.plb-B{background:var(--accent-deep);color:var(--surface)}
 .daybody{padding:0 18px 16px}
 .infobox{background:var(--accent-soft);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--ink);display:grid;gap:6px}.infobox p{margin:0}
 .tblock,.ex-head{scroll-margin-top:72px}
@@ -292,20 +292,20 @@ body.dragmode{-webkit-user-select:none;user-select:none;touch-action:none;oversc
 .hfil button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .hfil .hsep{flex:none;width:1px;background:var(--line);margin:4px 2px}
 .hsum .tile b{font-size:24px}.hsum .tile .ts{font-size:12px}
-.tile b.sm{font-size:19px;line-height:1.2}.tile b.up{color:var(--accent)}.tile b.dn{color:var(--pop)}
+.tile b.sm{font-size:19px;line-height:1.2}.tile b.up{color:var(--accent)}.tile b.dn{color:var(--muted)}
 .whead{display:flex;justify-content:space-between;align-items:baseline;margin:18px 4px 8px;color:var(--muted);font-size:14px}.whead b{color:var(--ink);font:600 15px var(--f-head)}
 .wgoal{font:700 13px var(--f-body);padding:3px 10px;border-radius:999px;background:var(--surface2);color:var(--muted)}.wgoal.ok{background:var(--accent-soft);color:var(--accent-deep)}
 .hday:first-child .dayrow{border-top:0}
 .dayrow .dd b{font:600 16px var(--f-head);color:var(--ink)}
 .dayrow .tr{display:flex;flex-wrap:wrap;gap:4px 10px;font:600 13px var(--f-body)}
-.tr .up{color:var(--accent)}.tr .eq{color:var(--muted)}.tr .dn{color:var(--pop)}.tr .st{color:var(--pop)}.tr .nt{color:var(--muted)}
+.tr .up{color:var(--accent)}.tr .eq{color:var(--muted)}.tr .dn{color:var(--muted)}.tr .st{color:var(--pop)}.tr .nt{color:var(--muted)}
 .dayrow{min-height:62px;padding-top:8px;padding-bottom:8px}
 .hex{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}.hex:first-child{border-top:0}
 .hex .hl{display:grid;gap:1px;min-width:0}.hex .hl b{font:600 15px var(--f-head)}.hex .hl small{color:var(--muted);font-size:13px}.hex .hl .hs{font-size:12px;line-height:1.4}
 .hex .hr,.hxrow .hv{display:grid;justify-items:end;align-content:start;gap:3px;text-align:right;flex:none}.hex .hr b,.hxrow .hv b{font:700 16px var(--f-head);white-space:nowrap}
 .star{font-style:normal;color:var(--pop);font-size:15px;font-weight:700}
 .tp{font:700 12px var(--f-body);padding:2px 8px;border-radius:999px;white-space:nowrap}
-.tp-up{background:var(--accent-soft);color:var(--accent-deep)}.tp-dn{background:color-mix(in srgb,var(--pop) 16%,transparent);color:var(--pop)}.tp-eq,.tp-new{background:var(--surface2);color:var(--muted)}
+.tp-up{background:var(--accent-soft);color:var(--accent-deep)}.tp-dn{background:var(--surface2);color:var(--muted)}.tp-eq,.tp-new{background:var(--surface2);color:var(--muted)}
 .hup{margin:8px 0 0;font:600 14px var(--f-body);color:var(--accent-deep)}
 .hnote{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:var(--surface2);font-size:14px;line-height:1.45}
 .hnote::before{content:"Notiz · ";font-weight:700;color:var(--muted)}
@@ -315,6 +315,45 @@ body.dragmode{-webkit-user-select:none;user-select:none;touch-action:none;oversc
 .hxbody{padding:0 18px 12px;font-size:13px;color:var(--muted);line-height:1.5}
 .hmore{display:block;margin:12px auto 4px}
 .hx .tiles{margin:0}
+
+.top .ttl{display:grid;gap:0}.top .ttl h1{margin:0}.top .ttl .date{color:var(--muted);font-size:14px;font-weight:600}
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px 16px 10px;margin:0 0 12px;box-shadow:var(--shadow);display:grid;gap:12px}
+.hero .hrow{display:flex;align-items:center;gap:14px}
+.hero .ring{position:relative;width:56px;height:56px;flex:none}.hero .ring svg{width:56px;height:56px;transform:rotate(-90deg)}
+.hero .ring circle{fill:none;stroke-width:6}.hero .ring .rb{stroke:var(--accent-soft)}.hero .ring .rf{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .5s}
+.hero .ring span{position:absolute;inset:0;display:grid;place-items:center;font:600 13px var(--f-head);color:var(--muted)}.hero .ring span b{font-size:18px;color:var(--ink)}
+.hero .ring span{display:flex;align-items:center;justify-content:center}
+.hero .hm{flex:1;display:grid;gap:2px;min-width:0}.hero .hm b{font:700 20px var(--f-head)}.hero .hm span{color:var(--muted);font-size:14px}
+.hero .flm b{font-size:20px}
+.hero .wkstrip{margin:0;padding-top:10px;border-top:1px solid var(--line)}
+.tbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;height:4px;margin:-6px 0 10px;border-radius:4px;background:var(--accent-soft);overflow:hidden}.tbar i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.ex-t .lastm{display:block;margin-top:3px;font-size:13px;color:var(--muted)}.ex-t .lastm b{color:var(--ink);font-weight:700}
+.exa.slim{opacity:.92}.exa.slim .ex-head{min-height:0;padding:10px 18px}.exa.slim h3{font-size:16px}.exa.slim .sub{font-size:13px}.exa.slim .cnt{transform:scale(.85)}
+.exhint{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;width:100%;padding:0 18px 12px;margin-top:-6px;font:600 13px var(--f-body);color:var(--accent-deep);cursor:pointer}
+.exhint i{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.exhint:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+.exhints{margin:0 18px 6px;padding:4px 14px 10px;border-radius:14px;background:var(--accent-soft)}.exhints .sg{border-top-color:rgba(0,0,0,.06)}
+.plist{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:6px}
+.plist .dr{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 10px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
+.plist .grip{color:var(--muted);font-size:13px;letter-spacing:-3px;cursor:grab}.plist .pn{flex:1;font-weight:600;min-width:0}
+.plist .mv{display:flex;gap:4px}.plist .mv button,.plist .px{all:unset;box-sizing:border-box;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;cursor:pointer;color:var(--accent-deep);background:var(--accent-soft);font-size:12px}
+.plist .px{background:none;color:var(--muted);font-size:20px}.plist .mv button[disabled]{opacity:.3;cursor:default}
+.plist .mv button:focus-visible,.plist .px:focus-visible{outline:3px solid var(--accent)}
+.plist .dr.dragging{position:relative;z-index:20;box-shadow:0 10px 26px rgba(0,0,0,.22);outline:2px solid var(--accent);background:var(--surface)}
+.joker{margin:6px 0 0;font:600 13px var(--f-body);color:var(--accent-deep)}
+
+.donehero{position:relative;overflow:hidden;margin:0 0 12px;padding:18px 18px 16px;border-radius:22px;color:#fff;background:radial-gradient(120% 120% at 15% 0%,#14a897 0%,#0B8579 50%,#075e55 100%);box-shadow:var(--glow);display:grid;gap:14px}
+.donehero .dh-top{display:flex;align-items:center;gap:14px}.donehero .donemark{margin:0;flex:none;background:rgba(255,255,255,.18);box-shadow:none}
+.donehero h2{margin:0;font:700 22px/1.15 var(--f-head);color:#fff}.donehero p{margin:2px 0 0;opacity:.85;font-size:14px}
+.dh-tiles{display:flex;gap:8px}.dh-tiles div{flex:1;min-width:0;padding:10px 8px;border-radius:14px;background:rgba(255,255,255,.14);text-align:center}
+.dh-tiles b{display:block;font:700 22px/1.1 var(--f-head);white-space:nowrap}.dh-tiles small{display:block;font-size:11px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dh-tiles div{padding:10px 4px}
+.dh-cmp{display:flex;flex-wrap:wrap;gap:6px 14px;font:600 14px var(--f-body)}.dh-cmp b{font-weight:800}.dh-cmp .st{color:#FFD27A}
+.donelist .hex{padding:10px 18px}
+.dh-next{display:flex;align-items:center;gap:12px}.dh-next>div{display:grid;gap:2px}.dh-next b{font:600 16px var(--f-head)}.dh-next span{color:var(--muted);font-size:14px}
+#cele .cst{width:100%;max-width:420px;flex-wrap:nowrap;justify-content:center}#cele .cst div{flex:1;min-width:0;padding:10px 4px}#cele .cst small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#cele .pr{color:#fff;line-height:1.5}
+#cele .cmpl{margin:0;font-size:15px;opacity:0;animation:celpop .5s 1.4s ease-out forwards}#cele .cmpl b{color:#9BF5E3}
+#cele .fl{position:relative}#cele .plus1{position:absolute;top:6px;right:-18px;font:800 20px var(--f-head,system-ui);font-style:normal;color:#FFD27A;opacity:0;animation:celplus 1s 2.3s ease-out forwards}
+@keyframes celplus{0%{opacity:0;transform:translateY(10px) scale(.6)}40%{opacity:1;transform:translateY(-4px) scale(1.2)}100%{opacity:1;transform:none}}
 #splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:max(8vh,env(safe-area-inset-top,0px)) !important;gap:10px;background:linear-gradient(165deg,#0B8579,#053f3a);color:#fff;text-align:center;padding:24px;transition:opacity .4s;cursor:pointer}
 #splash.out{opacity:0;pointer-events:none}
 #splash .glow{position:absolute;top:50%;left:50%;margin:-70vmin 0 0 -70vmin;width:140vmin;height:140vmin;border-radius:50%;background:radial-gradient(circle,rgba(90,240,215,.35),rgba(90,240,215,0) 60%);opacity:0;transform:scale(.4);animation:splglow 3s 1.1s ease-out forwards}
@@ -339,7 +378,7 @@ body.dragmode{-webkit-user-select:none;user-select:none;touch-action:none;oversc
 .dock.hold{box-shadow:var(--glow)}
 .dock.hold.done{background:linear-gradient(135deg,var(--pop),var(--pop2));color:var(--pop-ink);box-shadow:var(--glow-pop)}
 .dock.hold.done .btn{background:rgba(0,0,0,.14)}
-.bar.cur{fill:var(--pop)!important;fill-opacity:1}
+.bar.cur{fill:var(--accent)!important;fill-opacity:.4}
 .hints-btn b{background:var(--pop);color:var(--pop-ink)}
 .badge{box-shadow:var(--glow)}
 .nav .on,.nav [aria-current=page]{box-shadow:none}
@@ -430,6 +469,7 @@ function baseCfg(){
 }
 var cfg=defaultCfg(), days={}, mode='local', appRef=null, saveErr=false;
 var setOpen={}, prevTab='today', histOpen={}, pendingScroll=null, painAsk=null, infoId=null, tab='today', openId=null, editId=null, confirmDel=null, draft={}, autoOpened=false, statRange=12, statEx=null, goalsOpen=null, testOpen=null, moreId=null, hintsOpen=false, grpOpen={}, formGrp=null, summaryOpen=false, editToday=false, impPending=null, impMsg='', deferredInstall=null, testDraft={}, testRes={};
+var todayHints={};
 var T=null, tickId=null, wake=null, ac=null, holdPend=null;
 
 function adopt(c){
@@ -752,7 +792,6 @@ function goalsBlock(e){
 function panel(e){
   var step=e.ladder[e.level]||'', l=lastSet(e.id);
   var h='<div class="panel">';
-  if(l&&e.type!=='ladder') h+='<p class="last">Zuletzt: '+((l.s&&l.s!==e.ladder[e.level])?esc(l.s)+' · ':'')+esc(fmtSet(l))+'</p>';
   var tdp=days[ymd(new Date())], pj=(tdp&&tdp.pain&&tdp.pain[e.id])||[];
   if(painAsk===e.id&&pj.length){
     h+='<div class="painbox"><p><b>'+esc(pj.join(', '))+' meldet sich.</b> Wie willst du heute weitermachen?</p><div class="pbtns">'+
@@ -966,16 +1005,22 @@ function weeksData(N){
   });
   return arr;
 }
-function streakWeeks(goal){
-  var counts={};
-  dayKeys().forEach(function(k){var mk=ymd(monday(parseYmd(k)));counts[mk]=(counts[mk]||0)+1});
-  var cur=monday(new Date()), n=(counts[ymd(cur)]||0)>=goal?1:0, i=1;
+function streakInfo(goal){
+  var counts={}, ks=dayKeys();
+  if(!ks.length) return {n:0,jokers:[]};
+  ks.forEach(function(k){var mk=ymd(monday(parseYmd(k)));counts[mk]=(counts[mk]||0)+1});
+  var first=ymd(monday(parseYmd(ks[0]))), cur=monday(new Date()), n=(counts[ymd(cur)]||0)>=goal?1:0, i=1, lastJ=-99, jok=[];
   while(i<600){
-    var m=new Date(cur);m.setDate(m.getDate()-7*i);
-    if((counts[ymd(m)]||0)>=goal){n++;i++}else break;
+    var m=new Date(cur);m.setDate(m.getDate()-7*i); var mk=ymd(m);
+    if(mk<first) break;
+    if((counts[mk]||0)>=goal){n++;i++;continue}
+    var pm=new Date(m);pm.setDate(pm.getDate()-7);
+    if(i-lastJ>6&&(counts[ymd(pm)]||0)>=goal&&ymd(pm)>=first){jok.push(mk);lastJ=i;i++;continue}
+    break;
   }
-  return n;
+  return {n:n,jokers:jok};
 }
+function streakWeeks(goal){return streakInfo(goal).n}
 function niceStep(mx){
   var raw=(mx/4)||1, mag=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/mag;
   var m=f<=1?1:f<=2?2:f<=5?5:10;
@@ -1123,13 +1168,15 @@ function viewStats(){
   var fn=flameNext(streak), thisN=weeks[weeks.length-1].n;
   h+='<section class="card pad flamecard">'+flameSvg(streak,streak>=8?96:76)+'<div class="ft2"><span class="big">'+streak+'</span><b>'+(streak===1?'Woche':'Wochen')+' in Serie</b><p class="note" style="margin:2px 0 0">'+
     (streak===0?'Erreiche dein Wochenziel von '+goal+' Trainings, dann zündet die Flamme.':'Eine Woche zählt, wenn du dein Wochenziel von '+goal+' Trainings erreichst. Diese Woche: '+thisN+' von '+goal+'.')+
-    (fn&&streak>0?' Noch '+fn.n+(fn.n===1?' Woche':' Wochen')+' bis zur nächsten Flammenstufe.':'')+'</p></div></section>';
+    (fn&&streak>0?' Noch '+fn.n+(fn.n===1?' Woche':' Wochen')+' bis zur nächsten Flammenstufe.':'')+'</p>'+
+    (function(){var J=streakInfo(goal).jokers;return J.length?'<p class="joker">Joker eingesetzt: '+J.map(function(k){return 'KW '+isoWeek(parseYmd(k))}).join(', ')+'</p>':''})()+
+    '<p class="note" style="margin:4px 0 0;font-size:12px">Joker: Eine verpasste Woche lässt die Flamme nicht erlöschen, wenn du davor und danach dein Ziel schaffst. Höchstens einmal in 6 Wochen.</p></div></section>';
   h+='<div class="tiles">'+
     tile('Trainings',String(total),'in '+N+' Wochen')+
     tile('Pro Woche',String(n1(total/span)).replace('.',','),'Ziel '+goal)+
     tile('Wochenziel erreicht',doneW.length?hit+' von '+doneW.length:'–','abgeschlossene Wochen')+'</div>';
   h+='<section class="card pad"><h2>Trainings pro Woche</h2><div class="chart">'+freqChart(weeks,goal)+'<div class="tip" hidden></div></div>'+
-    '<p class="note">Die Linie zeigt dein Wochenziel von '+goal+' Trainings. Die korallfarbene Säule ist die laufende Woche.</p>'+
+    '<p class="note">Die Linie zeigt dein Wochenziel von '+goal+' Trainings. Die hellere Säule ist die laufende Woche.</p>'+
     tbl(['Woche','Trainings'],weeks.slice().reverse().map(function(w){return ['KW '+w.wk+' · ab '+shortDate(w.m),String(w.n)]}))+'</section>';
   h+=patternBlock();
   if(!statEx||!getEx(statEx)){
@@ -1286,15 +1333,32 @@ function ladderPanel(e){
   }
   return h;
 }
+function lastMetric(e){
+  var st=e.ladder[e.level]||'', tk=todayKey(), ks=dayKeys(), i;
+  for(i=ks.length-1;i>=0;i--){
+    if(ks[i]>=tk) continue;
+    var ss=days[ks[i]].sets.filter(function(x){return x.e===e.id&&(x.s||'')===st});
+    if(ss.length) return exDayMetric(ss);
+  }
+  return null;
+}
 function exCard(e){
   var sets=todaySets().filter(function(s){return s.e===e.id});
-  var chips=sets.map(function(s){return '<span class="chip">'+esc(fmtSet(s))+'</span>'}).join('');
-  var isOpen=openId===e.id;
+  var isOpen=openId===e.id, hs=todayHints[e.id]||[], hv=hs.filter(function(x){return !x.q});
   var pc=plannedToday(e), dc=doneCount(e), dn=dc>=pc, pct=Math.min(100,Math.round(dc/pc*100));
+  if(dn&&!isOpen){
+    var m=sets.length?exDayMetric(sets):null;
+    return '<article class="card exa done slim" data-exid="'+e.id+'"><button class="ex-head" data-act="open" data-id="'+e.id+'" aria-expanded="false">'+
+      '<span class="ex-t"><h3>'+esc(e.name)+'</h3><span class="sub">'+(m?esc(m.txt)+' · ':'')+dc+(e.type==='ladder'?(dc===1?' Serie':' Serien'):(dc===1?' Satz':' Sätze'))+'</span></span>'+
+      '<span class="cnt ok" aria-label="fertig">✓</span></button>'+
+      (hv.length?'<button class="exhint" data-act="open" data-id="'+e.id+'"><i aria-hidden="true"></i>'+esc(hv[0].s)+(hv.length>1?' · +'+(hv.length-1):'')+'</button>':'')+'</article>';
+  }
+  var lm=lastMetric(e);
   return '<article class="card exa'+(dn?' done':'')+'" data-exid="'+e.id+'"><button class="ex-head" data-act="open" data-id="'+e.id+'" aria-expanded="'+isOpen+'">'+
-    '<span class="ex-t"><h3>'+esc(e.name)+'</h3><span class="sub">'+esc(subText(e))+'</span></span>'+
+    '<span class="ex-t"><h3>'+esc(e.name)+'</h3><span class="sub">'+esc(subText(e))+'</span>'+(lm?'<span class="lastm">Letztes Mal: <b>'+esc(lm.txt)+'</b></span>':'')+'</span>'+
     '<span class="cnt'+(dn?' ok':'')+'" aria-label="'+dc+' von '+pc+'">'+(dn?'✓':'<b>'+dc+'</b>/'+pc)+'</span></button>'+
-    '<div class="pbar"><i style="width:'+pct+'%"></i></div>'+(isOpen?panel(e):'')+'</article>';
+    (hv.length&&!isOpen?'<button class="exhint" data-act="open" data-id="'+e.id+'"><i aria-hidden="true"></i>'+esc(hv[0].s)+(hv.length>1?' · +'+(hv.length-1):'')+'</button>':'')+
+    '<div class="pbar"><i style="width:'+pct+'%"></i></div>'+(isOpen?(hs.length?'<div class="exhints">'+hs.map(function(x){return x.f}).join('')+'</div>':'')+panel(e):'')+'</article>';
 }
 var LRUNGS=5;
 var JOINTS=['Schulter','Ellbogen','Handgelenk','Knie','Rücken'];
@@ -1409,7 +1473,7 @@ function noteCardHtml(){
   var tdk=ymd(new Date());
   return '<section class="card pad"><div class="field"><label for="day-note">Notiz zur Einheit</label><textarea id="day-note" placeholder="Schlaf, Stimmung, Schmerzen, Besonderes …">'+esc((days[tdk]&&days[tdk].note)||'')+'</textarea></div></section>';
 }
-function weekStrip(){
+function weekStrip(noFlame){
   var m=monday(new Date()), tk=todayKey(), lab=['M','D','M','D','F','S','S'], h='<div class="wkstrip" role="img" aria-label="Trainingstage dieser Woche">', n=0, i;
   for(i=0;i<7;i++){
     var d=new Date(m.getFullYear(),m.getMonth(),m.getDate()+i), k=ymd(d), on=!!(days[k]&&(days[k].sets||[]).length);
@@ -1417,20 +1481,24 @@ function weekStrip(){
     h+='<span class="wd'+(on?' on':'')+(k===tk?' today':'')+'"><i>'+(on?'✓':'')+'</i><small>'+lab[i]+'</small></span>';
   }
   var sw=streakWeeks(cfg.settings.goal||3);
-  if(sw>0){var i0=h.indexOf('>')+1;h=h.slice(0,i0)+'<button class="flm" data-act="tab" data-v="stats" aria-label="'+sw+(sw===1?' Woche':' Wochen')+' in Serie">'+flameSvg(sw,30)+'<b>'+sw+'</b></button>'+h.slice(i0)}
+  if(sw>0&&!noFlame){var i0=h.indexOf('>')+1;h=h.slice(0,i0)+'<button class="flm" data-act="tab" data-v="stats" aria-label="'+sw+(sw===1?' Woche':' Wochen')+' in Serie">'+flameSvg(sw,30)+'<b>'+sw+'</b></button>'+h.slice(i0)}
   return h+'<span class="wn"><b>'+n+'</b>/'+(cfg.settings.goal||3)+'</span></div>';
 }
 function viewToday(){
   var wt=weekType();
   var list=todayIds().map(getEx).filter(Boolean);
-  var h='<header class="top"><div class="wk"><span class="lbl">Einheit</span>'+['A','B'].map(function(w){var lock=false;return '<button class="abbtn" aria-pressed="'+(wt===w)+'" data-act="wk" data-v="'+w+'"'+(lock?' disabled':'')+' aria-label="Einheit '+w+'">'+w+'</button>'}).join('')+'</div><div class="date">'+labelDate(new Date())+'</div>'+gearBtn()+'</header>';
+  var h='<header class="top"><div class="ttl"><h1>Heute</h1><span class="date">'+esc(labelDate(new Date()))+'</span></div>'+gearBtn()+'</header>';
   var fk=todayKey();
   var finished=!!(days[fk]&&days[fk].end&&(days[fk].sets||[]).length);
   if(finished){
-    var fm=dayMinutes(fk);
-    h+='<section class="card pad donecard"><div class="donemark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h2>Training für heute abgeschlossen</h2><p class="note">Einheit '+esc(wt)+' · beendet um '+clock(days[fk].end)+(fm?' · '+fm+' min':'')+'</p>'+
-      '<div class="row" style="margin-top:12px;justify-content:flex-start;gap:8px;flex-wrap:wrap"><button class="btn primary" data-act="'+(summaryOpen?'sumclose':'sumopen')+'">'+(summaryOpen?'Zusammenfassung ausblenden':'Zusammenfassung ansehen')+'</button><button class="btn" data-act="reopen">Weiter trainieren</button></div></section>';
-    if(summaryOpen) h+=summaryCard(fk);
+    var S=finishStats(fk);
+    h+='<section class="donehero"><div class="dh-top"><div class="donemark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><h2>'+esc(S.head)+'</h2><p>Einheit '+esc(wt)+' · fertig um '+clock(days[fk].end)+'</p></div></div>'+
+      '<div class="dh-tiles"><div><b data-count="'+S.nSets+'">'+S.nSets+'</b><small>Sätze</small></div>'+(S.reps?'<div><b data-count="'+S.reps+'">'+S.reps+'</b><small>Wdh.</small></div>':'')+(S.hold?'<div><b>'+holdParts(S.hold)[0]+'</b><small>'+holdParts(S.hold)[1]+'</small></div>':'')+(S.m?'<div><b data-count="'+S.m+'">'+S.m+'</b><small>Minuten</small></div>':'')+'</div>'+
+      (S.cmp?'<div class="dh-cmp"><span><b>▲ '+S.up+'</b> besser</span><span>= '+S.eq+' gleich</span>'+(S.dn?'<span>▼ '+S.dn+'</span>':'')+(S.prs.length?'<span class="st">★ '+S.prs.length+'</span>':'')+'</div>':'')+
+      '</section>';
+    h+='<section class="card donelist">'+S.rows.map(function(r){return '<div class="hex"><div class="hl"><b>'+esc(r.name)+'</b><small>'+esc(r.stage)+'</small></div><div class="hr"><b>'+(r.pr?'<i class="star" aria-label="Bestleistung">★</i> ':'')+esc(r.m.txt)+'</b>'+trendPill(r.c)+'</div></div>'}).join('')+'</section>';
+    h+='<section class="card pad dh-next">'+(S.w>0?flameSvg(S.w,52):'')+'<div><b>'+(S.w>0?S.w+(S.w===1?' Woche':' Wochen')+' in Serie':'Diese Woche '+S.cnt+' von '+S.goal)+'</b><span>'+(S.w>0?'Diese Woche '+S.cnt+' von '+S.goal+(S.cnt>=S.goal?' ✓':''):'Erreiche dein Wochenziel, dann zündet die Flamme.')+(S.next?' · Nächstes Mal: Einheit '+S.next:'')+'</span></div></section>';
+    h+='<div class="row" style="justify-content:center;gap:8px;margin:0 0 12px;flex-wrap:wrap"><button class="btn" data-act="replay">Nochmal feiern</button><button class="btn" data-act="reopen">Weiter trainieren</button></div>';
     h+=noteCardHtml();
     return h;
   }
@@ -1440,15 +1508,21 @@ function viewToday(){
     var nu=list.filter(function(x){return doneCount(x)<plannedToday(x)})[0];
     openId=nu?nu.id:null;
   }
-  h+=weekStrip();
   var nDone=list.filter(function(x){return doneCount(x)>=plannedToday(x)}).length;
   var frac=list.length?list.reduce(function(a,x){return a+Math.min(1,doneCount(x)/plannedToday(x))},0)/list.length:0;
-  if(list.length) h+='<div class="sum"><span><b>'+nDone+'</b> von '+list.length+' Übungen fertig</span><div class="pbar big"><i style="width:'+Math.round(frac*100)+'%"></i></div></div>';
+  var goalW=cfg.settings.goal||3, sw=streakWeeks(goalW);
+  var pm=dayKeys().filter(function(k){return days[k].plan===wt&&k<fk}).slice(-6).map(dayMinutes).filter(Boolean);
+  var avgM=pm.length?Math.round(pm.reduce(function(a,b){return a+b},0)/pm.length/5)*5:0;
+  var C=2*Math.PI*24;
+  h+='<section class="hero"><div class="hrow"><div class="ring" role="img" aria-label="'+nDone+' von '+list.length+' Übungen fertig"><svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="24" class="rb"/><circle cx="28" cy="28" r="24" class="rf" style="stroke-dasharray:'+C.toFixed(1)+';stroke-dashoffset:'+(C*(1-frac)).toFixed(1)+'"/></svg><span><b>'+nDone+'</b>/'+list.length+'</span></div>'+
+     '<div class="hm"><b>Einheit '+esc(wt)+'</b><span>'+list.length+(list.length===1?' Übung':' Übungen')+(avgM?' · ca. '+avgM+' min':'')+'</span></div>'+
+     (sw>0?'<button class="flm" data-act="tab" data-v="stats" aria-label="'+sw+(sw===1?' Woche':' Wochen')+' in Serie">'+flameSvg(sw,34)+'<b>'+sw+'</b></button>':'')+'</div>'+weekStrip(true)+'</section>';
+  if(list.length&&frac>0&&frac<1) h+='<div class="tbar" aria-hidden="true"><i style="width:'+Math.round(frac*100)+'%"></i></div>';
   var tdk0=ymd(new Date()), cust=!!(days[tdk0]&&days[tdk0].custom);
   h+='<div class="row" style="margin:0 0 12px"><button class="btn small" data-act="tedit" aria-expanded="'+editToday+'">'+(editToday?'Fertig':'Heute anpassen')+'</button>'+(cust?'<span class="note">Heute angepasst</span>':'')+'</div>';
   if(editToday){
     var ids0=todayIds(), tov=(days[tdk0]&&days[tdk0].setsOv)||{};
-    h+='<section class="card pad todayedit"><h2>Heute anpassen</h2><p class="note" style="margin-bottom:8px">Gilt nur für heute. Dein Plan und deine Ziele bleiben, wie sie sind. An einem angepassten Tag steigert die App nichts. Die Reihenfolge änderst du mit ▲ ▼ oder direkt im Training: Übung lange gedrückt halten und ziehen.</p>';
+    h+='<section class="card pad todayedit"><h2>Heute anpassen</h2><div class="row" style="margin-bottom:12px"><span>Einheit heute</span><div class="seg" role="group" aria-label="Heutige Einheit">'+['A','B'].map(function(w){return '<button aria-pressed="'+(wt===w)+'" data-act="wk" data-v="'+w+'">'+w+'</button>'}).join('')+'</div></div><p class="note" style="margin-bottom:8px">Gilt nur für heute. Dein Plan und deine Ziele bleiben, wie sie sind. An einem angepassten Tag steigert die App nichts. Die Reihenfolge änderst du mit ▲ ▼ oder direkt im Training: Übung lange gedrückt halten und ziehen.</p>';
     ids0.map(getEx).filter(Boolean).forEach(function(e){
       var n=plannedToday(e);
       h+='<div class="trow"><span class="tn">'+esc(e.name)+'</span><div class="row" style="gap:8px">'+
@@ -1459,57 +1533,42 @@ function viewToday(){
     if(cust) h+='<div class="row" style="margin-top:10px"><button class="btn" data-act="treset">Wie im Plan</button></div>';
     h+='</section>';
   }
-  var hb='';
-  var fresh=(cfg.log||[]).filter(function(x){return !x.seen});
-  if(fresh.length){
-    hb+='<section class="card pad"><h2>Automatisch angepasst</h2>'+fresh.map(function(x){
-      return '<div class="sg"><h3>'+esc(x.title)+'</h3><p>'+esc(x.text)+'</p>'+(x.why?'<p class="note">'+esc(x.why)+'</p>':'')+
-        '<div class="row" style="margin-top:8px"><button class="btn" data-act="logok" data-i="'+x.id+'">Verstanden</button><button class="btn" data-act="logundo" data-i="'+x.id+'">Rückgängig</button></div></div>';
-    }).join('')+'</section>';
-  }
-  var tn=list.map(function(e){var r=needsTest(e);return r?{e:e,r:r}:null}).filter(Boolean);
-  if(tn.length) hb+='<section class="card pad"><h2>Maximaltest</h2><p class="note" style="margin-bottom:6px">Mit einem Test stellt die App deine Leitern und Ziele auf dich ein.</p>'+tn.map(function(x){
-    return '<div class="sg"><h3>'+esc(x.e.name)+'</h3><p class="note">'+esc(x.r)+'</p><div class="row" style="margin-top:8px"><button class="btn primary" data-act="testnow" data-id="'+x.e.id+'">Jetzt testen</button><button class="btn" data-act="testlater" data-id="'+x.e.id+'">Später</button></div></div>';
-  }).join('')+'</section>';
-  var sgAll=list.map(function(e){var s=suggestFor(e);return s?{e:e,s:s}:null}).filter(Boolean);
-  var pend=cfg.settings.auto?sgAll.filter(function(x){return x.s.kind!=='info'&&x.s.day===todayKey()}):[];
-  var sg=sgAll.filter(function(x){return pend.indexOf(x)<0});
-  if(pend.length){
-    hb+='<section class="card pad"><h2>Fürs nächste Training vorgemerkt</h2>'+pend.map(function(x){
-      return '<div class="sg"><h3>'+esc(x.s.title)+'</h3><p>'+esc(x.s.text)+'</p></div>';
-    }).join('')+'</section>';
-  }
-  if(sg.length){
-    hb+='<section class="card pad"><h2>Vorschläge der App</h2>'+sg.map(function(x){
-      var info=x.s.kind==='info';
-      return '<div class="sg"><h3>'+esc(x.s.title)+'</h3><p>'+esc(x.s.text)+'</p>'+(x.s.why?'<p class="note">'+esc(x.s.why)+'</p>':'')+
-        '<div class="row" style="margin-top:8px">'+(info
-          ?'<button class="btn" data-act="sugno" data-id="'+x.e.id+'">Verstanden</button>'
-          :'<button class="btn primary" data-act="sugok" data-id="'+x.e.id+'">Übernehmen</button><button class="btn" data-act="sugno" data-id="'+x.e.id+'">Nicht jetzt</button>')+
-        '</div></div>';
-    }).join('')+'</section>';
-  }
+  todayHints={};
+  var gb='', lids=list.map(function(e){return e.id});
+  function hstrip(t,e){return e&&t.indexOf(e.name+': ')===0?t.slice(e.name.length+2):t}
+  function addH(eid,sh,full,q){(todayHints[eid]=todayHints[eid]||[]).push({s:sh,f:full,q:!!q})}
+  (cfg.log||[]).filter(function(x){return !x.seen}).forEach(function(x){
+    var full='<div class="sg"><h3>'+esc(x.title)+'</h3><p>'+esc(x.text)+'</p>'+(x.why?'<p class="note">'+esc(x.why)+'</p>':'')+
+      '<div class="row" style="margin-top:8px"><button class="btn" data-act="logok" data-i="'+x.id+'">Verstanden</button><button class="btn" data-act="logundo" data-i="'+x.id+'">Rückgängig</button></div></div>';
+    if(x.eid&&lids.indexOf(x.eid)>=0) addH(x.eid,'Angepasst: '+hstrip(x.title,getEx(x.eid)),full);
+    else gb+='<section class="card pad"><h2>Automatisch angepasst</h2>'+full+'</section>';
+  });
+  list.forEach(function(e){
+    var r=needsTest(e);
+    if(r) addH(e.id,'Maximaltest empfohlen','<div class="sg"><h3>Maximaltest</h3><p class="note">'+esc(r)+'</p><div class="row" style="margin-top:8px"><button class="btn primary" data-act="testnow" data-id="'+e.id+'">Jetzt testen</button><button class="btn" data-act="testlater" data-id="'+e.id+'">Später</button></div></div>',true);
+    var sgx=suggestFor(e); if(!sgx) return;
+    var pendx=cfg.settings.auto&&sgx.kind!=='info'&&sgx.day===todayKey();
+    if(pendx){addH(e.id,'Vorgemerkt: '+hstrip(sgx.title,e),'<div class="sg"><h3>Fürs nächste Training vorgemerkt</h3><p>'+esc(sgx.text)+'</p></div>');return}
+    var info=sgx.kind==='info';
+    addH(e.id,(info?'':'Vorschlag: ')+hstrip(sgx.title,e),'<div class="sg"><h3>'+esc(sgx.title)+'</h3><p>'+esc(sgx.text)+'</p>'+(sgx.why?'<p class="note">'+esc(sgx.why)+'</p>':'')+
+      '<div class="row" style="margin-top:8px">'+(info?'<button class="btn" data-act="sugno" data-id="'+e.id+'">Verstanden</button>':'<button class="btn primary" data-act="sugok" data-id="'+e.id+'">Übernehmen</button><button class="btn" data-act="sugno" data-id="'+e.id+'">Nicht jetzt</button>')+'</div></div>');
+  });
   var nx=0;
   var dl=deloadInfo();
   if(dl){
     nx++;
     var why=[]; if(dl.st.length>=2) why.push(dl.st.map(function(e){return e.name}).join(', ')+' stagnieren seit mehreren Einheiten'); if(dl.pj.length) why.push('wiederholte Beschwerden: '+dl.pj.join(', '));
-    hb+='<section class="card pad"><h2>Leichtere Woche?</h2><p>'+esc(why.join('. '))+'.</p><p class="note" style="margin-top:6px">Mein Vorschlag (Faustregel): Diese Woche etwa ein Drittel weniger Sätze, Ziele halten statt steigern, bei Beschwerden die belastende Übung variieren. Beschwerden, die bleiben, gehören abgeklärt.</p><div class="row" style="margin-top:10px"><button class="btn" data-act="deloadok">Verstanden, 14 Tage nicht erinnern</button></div></section>';
+    gb+='<section class="card pad"><h2>Leichtere Woche?</h2><p>'+esc(why.join('. '))+'.</p><p class="note" style="margin-top:6px">Mein Vorschlag (Faustregel): Diese Woche etwa ein Drittel weniger Sätze, Ziele halten statt steigern, bei Beschwerden die belastende Übung variieren. Beschwerden, die bleiben, gehören abgeklärt.</p><div class="row" style="margin-top:10px"><button class="btn" data-act="deloadok">Verstanden, 14 Tage nicht erinnern</button></div></section>';
   }
   if(backupDue()){
     nx++;
     var lb=cfg.settings.lastBackup;
-    hb+='<section class="card pad"><h2>Sicherung fällig</h2><p>'+(lb?'Deine letzte Sicherung ist '+Math.floor((parseYmd(todayKey())-parseYmd(lb))/86400000)+' Tage alt.':'Du hast noch keine Sicherung erstellt.')+' Deine Daten liegen nur in diesem Browser.</p><div class="row" style="margin-top:10px"><button class="btn primary" data-act="export">Jetzt sichern</button></div></section>';
-  }
-  var nh=fresh.length+tn.length+pend.length+sg.length+nx;
-  if(nh){
-     h+='<button class="hints-btn'+((fresh.length||tn.length||dl)?' new':'')+'" data-act="hints" aria-expanded="'+hintsOpen+'"><span>Hinweise der App</span><b>'+nh+'</b><i>'+(hintsOpen?'▴':'▾')+'</i></button>';
-    if(hintsOpen) h+='<div class="hints-body">'+hb+'</div>';
+    gb+='<section class="card pad"><h2>Sicherung fällig</h2><p>'+(lb?'Deine letzte Sicherung ist '+Math.floor((parseYmd(todayKey())-parseYmd(lb))/86400000)+' Tage alt.':'Du hast noch keine Sicherung erstellt.')+' Deine Daten liegen nur in diesem Browser.</p><div class="row" style="margin-top:10px"><button class="btn primary" data-act="export">Jetzt sichern</button></div></section>';
   }
   if(!list.length) h+='<p class="empty">Für Einheit '+wt+' sind noch keine Übungen eingetragen. Wähle sie im Tab Plan aus.</p>';
   list.forEach(function(e){h+=exCard(e)});
+  h+=gb;
   if(deferredInstall&&!isStandalone()) h+='<div class="hint"><span>Du kannst die App auf dem Handy installieren.</span><button class="btn small" data-act="install">Installieren</button></div>';
-  if(!cfg.hideHint) h+='<div class="hint"><span>Das sind Beispiel-Übungen mit Beispiel-Stufen. Im Tab Plan änderst du Stufen, Pausen und die Übungen für Woche A und B.</span><button class="btn small" data-act="dismiss">OK</button></div>';
 
   var fk2=todayKey();
   if(todaySets().length){
@@ -1601,7 +1660,7 @@ function viewHistory(){
     });
     if(rows.length>histWeeks*3) h+='<button class="btn hmore" data-act="hmore">Ältere anzeigen</button>';
     h+='</section>';
-    h+='<p class="note" style="text-align:center;margin:4px 0 16px">Der Pfeil vergleicht mit dem vorherigen Training auf derselben Stufe. Den Verlauf als Diagramm findest du in der Statistik.</p>';
+    h+='<p class="note" style="text-align:center;margin:4px 0 8px">Der Pfeil vergleicht mit dem vorherigen Training auf derselben Stufe.</p><button class="btn hmore" data-act="statgo" data-id="'+exF.id+'">Als Diagramm in der Statistik</button>';
     return h;
   }
 
@@ -1610,10 +1669,9 @@ function viewHistory(){
   var since=ymd(new Date(Date.now()-27*864e5)), rec=keys.filter(function(k){return k>=since});
   var nUp=0,nCmp=0,nPr=0,mins=0,nm=0;
   rec.forEach(function(k){HD[k].forEach(function(r){if(r.c){nCmp++;if(r.c.d>0)nUp++}if(r.pr)nPr++});var m=dayMinutes(k);if(m){mins+=m;nm++}});
-  h+='<div class="tiles three hsum">'+
-     '<div class="tile"><span class="tl">Trainings</span><b>'+rec.length+'</b><span class="ts">letzte 4 Wochen</span></div>'+
+  h+='<div class="tiles hsum">'+
      '<div class="tile"><span class="tl">Besser als zuvor</span><b>'+(nCmp?Math.round(nUp/nCmp*100)+' %':'–')+'</b><span class="ts">'+nUp+' von '+nCmp+' Übungen</span></div>'+
-     '<div class="tile"><span class="tl">Bestleistungen</span><b>'+(nPr?'★ '+nPr:'0')+'</b><span class="ts">'+(nm?'Ø '+Math.round(mins/nm)+' min pro Training':'letzte 4 Wochen')+'</span></div></div>';
+     '<div class="tile"><span class="tl">Bestleistungen</span><b>'+(nPr?'★ '+nPr:'0')+'</b><span class="ts">'+'in den letzten 4 Wochen'+'</span></div></div>';
 
   /* sessions grouped by week */
   var weeksShown=0, curW=null, open=false, mk0=ymd(monday(new Date()));
@@ -1739,8 +1797,9 @@ function viewPlan(){
      ['A','B'].map(function(w){return '<button aria-pressed="'+(wt===w)+'" data-act="wk" data-v="'+w+'">Einheit '+w+'</button>'}).join('')+'</div>'+
      '<p class="note" style="margin-top:8px">Die App wechselt nach jedem Training zwischen A und B, zum Beispiel Mo A, Mi B, Fr A und in der Woche darauf Mo B, Mi A, Fr B. Du kannst die heutige Einheit jederzeit ändern. Schon gespeicherte Sätze von heute bleiben erhalten.</p></section>';
   ['A','B'].forEach(function(w){
-    h+='<section class="card pad"><h2>Übungen in Einheit '+w+'</h2><ul class="chips">'+
-      (cfg.plan[w]||[]).map(getEx).filter(Boolean).map(function(e){return '<li><span>'+esc(e.name)+'</span><button data-act="ptog" data-w="'+w+'" data-id="'+e.id+'" aria-label="'+esc(e.name)+' aus Einheit '+w+' entfernen">×</button></li>'}).join('')+'</ul>'+
+    var pl=(cfg.plan[w]||[]).map(getEx).filter(Boolean);
+    h+='<section class="card pad"><h2>Übungen in Einheit '+w+'</h2>'+(pl.length>1?'<p class="note" style="margin:-4px 0 8px">Reihenfolge: lange drücken und ziehen, oder ▲ ▼.</p>':'')+'<ul class="plist" data-w="'+w+'">'+
+      pl.map(function(e,i){return '<li class="dr" data-exid="'+e.id+'"><span class="grip" aria-hidden="true">⋮⋮</span><span class="pn">'+esc(e.name)+'</span><span class="mv"><button data-act="pmove" data-w="'+w+'" data-id="'+e.id+'" data-d="-1" aria-label="'+esc(e.name)+' nach oben"'+(i===0?' disabled':'')+'>▲</button><button data-act="pmove" data-w="'+w+'" data-id="'+e.id+'" data-d="1" aria-label="'+esc(e.name)+' nach unten"'+(i===pl.length-1?' disabled':'')+'>▼</button></span><button class="px" data-act="ptog" data-w="'+w+'" data-id="'+e.id+'" aria-label="'+esc(e.name)+' aus Einheit '+w+' entfernen">×</button></li>'}).join('')+'</ul>'+
       ((cfg.plan[w]||[]).length?'':'<p class="note">Noch keine Übungen.</p>')+pickerHtml(w)+'</section>';
   });
   h+='<section class="card"><div class="exrow" style="border:0"><h2 style="margin:0">Übungen und Leitern</h2></div>';
@@ -2006,8 +2065,9 @@ document.addEventListener('click',function(ev){
       saveCfg(); break;
     case 'finish':
       var fk3=todayKey();
-      if(days[fk3]&&(days[fk3].sets||[]).length){stopTimer();holdPend=null;days[fk3].end=Date.now();saveDay(fk3);summaryOpen=false;openId=null;window.scrollTo(0,0);setTimeout(function(){celebrate(fk3)},60)}
+      if(days[fk3]&&(days[fk3].sets||[]).length){stopTimer();holdPend=null;days[fk3].end=Date.now();saveDay(fk3);summaryOpen=false;openId=null;window.scrollTo(0,0);setTimeout(function(){celebrateFinish(fk3)},60)}
       break;
+    case 'replay': setTimeout(function(){celebrateFinish(todayKey())},30); break;
     case 'sumopen': summaryOpen=true; window.scrollTo(0,0); break;
     case 'sumclose': summaryOpen=false; break;
     case 'reopen': var fk4=todayKey(); if(days[fk4]){delete days[fk4].end;saveDay(fk4)} summaryOpen=false; break;
@@ -2021,6 +2081,7 @@ document.addEventListener('click',function(ev){
     case 'hday': histOpen[v]=!histOpen[v]; break;
     case 'hfil': histFil=v; histWeeks=6; histOpen={}; window.scrollTo(0,0); break;
     case 'hmore': histWeeks+=6; break;
+    case 'statgo': statEx=id; tab='stats'; window.scrollTo(0,0); break;
     case 'pa_go': painAsk=null; break;
     case 'pa_swap': painAsk=null; editToday=true; pendingScroll='.todayedit'; break;
     case 'pa_less':
@@ -2034,6 +2095,10 @@ document.addEventListener('click',function(ev){
         else showToast('Nur noch 1 geplant. Du kannst die Übung auch auslassen.')
       }
       painAsk=null; saveDay(qk); break;
+    case 'pmove':
+      var pw=b.dataset.w, pa=(cfg.plan[pw]||[]).slice(), pi=pa.indexOf(id), pj=pi+d;
+      if(pi>=0&&pj>=0&&pj<pa.length){pa.splice(pi,1);pa.splice(pj,0,id);cfg.plan[pw]=pa;saveCfg()}
+      break;
     case 'tmove':
       var mk=todayKey(); if(!days[mk]) days[mk]={sets:[]};
       var ml=todayIds().slice(), mi=ml.indexOf(id), mj=mi+d;
@@ -2169,29 +2234,56 @@ function flameSvg(w,px){
 }
 function flameNext(w){var t=[1,2,4,8,16],i;for(i=0;i<t.length;i++) if(w<t[i]) return {to:t[i],n:t[i]-w};return null}
 /* ---- Belohnung nach "Training beenden" ---- */
-function celebrate(k){
+function finishStats(k){
+  var d=days[k], o={nSets:0,reps:0,hold:0,m:dayMinutes(k),rows:[],up:0,eq:0,dn:0,prs:[]};
+  d.sets.forEach(function(x){if(x.k==='time')o.hold+=x.v;else o.reps+=x.v;if(x.p==null)o.nSets++;else if(x.r===rungs(x.p,x.b).length-1)o.nSets++});
+  o.rows=histData()[k]||[];
+  o.rows.forEach(function(r){if(r.c){if(r.c.d>0)o.up++;else if(r.c.d<0)o.dn++;else o.eq++}if(r.pr)o.prs.push(r.name+' '+r.m.txt)});
+  o.goal=cfg.settings.goal||3; o.w=streakWeeks(o.goal);
+  var mk=ymd(monday(parseYmd(k)));
+  o.cnt=dayKeys().filter(function(x){return ymd(monday(parseYmd(x)))===mk}).length;
+  o.reached=o.cnt===o.goal;
+  o.cmp=o.up+o.eq+o.dn;
+  o.head=o.prs.length?(o.prs.length>1?o.prs.length+' Bestleistungen!':'Neue Bestleistung!'):o.reached?'Wochenziel geschafft!':(o.cmp&&o.up*2>=o.cmp)?'Stärker als letztes Mal!':'Training geschafft!';
+  o.next=d.plan==='A'?'B':d.plan==='B'?'A':null;
+  return o;
+}
+function holdParts(t){t=Math.round(t);return [t>=60?Math.floor(t/60)+':'+pad(t%60):t+' s','Haltezeit']}
+function countUp(root){
+  [].forEach.call(root.querySelectorAll('[data-to]'),function(el){
+    var to=parseFloat(el.getAttribute('data-to')), dl=parseFloat(el.getAttribute('data-dl')||0)*1000, t0=null;
+    if(!(to>0)) return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=to;return}
+    el.textContent='0';
+    setTimeout(function(){requestAnimationFrame(function f(ts){if(!t0)t0=ts;var u=Math.min(1,(ts-t0)/900);el.textContent=Math.round(to*(1-Math.pow(1-u,3)));if(u<1)requestAnimationFrame(f)})},dl);
+  });
+}
+function celebrateFinish(k){
   var old=document.getElementById('cele'); if(old) old.parentNode.removeChild(old);
   var d=days[k]; if(!d||!d.sets) return;
-  var nSets=0, i;
-  d.sets.forEach(function(x){if(x.p==null) nSets++; else if(x.r===rungs(x.p,x.b).length-1) nSets++});
-  var m=dayMinutes(k), prs=(prMap()[k]||[]).length, goal=cfg.settings.goal||3, w=streakWeeks(goal);
-  var cnt=dayKeys().filter(function(x){return ymd(monday(parseYmd(x)))===ymd(monday(new Date()))}).length;
-  var reached=cnt===goal;
-  var cf='', cols=['#9BF5E3','#fff','#2FD9BF','#D4FFF6','#FFD27A'];
-  for(i=0;i<38;i++) cf+='<i class="cf" style="left:'+Math.round(Math.random()*100)+'%;background:'+cols[i%cols.length]+';--x:'+Math.round(Math.random()*160-80)+'px;--r:'+Math.round(Math.random()*720-360)+'deg;--d:'+(2.2+Math.random()*1.8).toFixed(2)+'s;--w:'+(0.9+Math.random()*0.9).toFixed(2)+'s"></i>';
-  var el=document.createElement('div'); el.id='cele'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Training geschafft');
+  var S=finishStats(k), i, w=S.w;
+  var cf='', cols=['#9BF5E3','#fff','#2FD9BF','#D4FFF6','#FFD27A'], nC=S.prs.length?60:40;
+  for(i=0;i<nC;i++) cf+='<i class="cf" style="left:'+Math.round(Math.random()*100)+'%;background:'+cols[i%cols.length]+';--x:'+Math.round(Math.random()*160-80)+'px;--r:'+Math.round(Math.random()*720-360)+'deg;--d:'+(2.2+Math.random()*1.8).toFixed(2)+'s;--w:'+(0.9+Math.random()*0.9).toFixed(2)+'s"></i>';
+  var el=document.createElement('div'); el.id='cele'; el.setAttribute('role','dialog'); el.setAttribute('aria-label',S.head);
+  var tiles='<div><b data-to="'+S.nSets+'" data-dl="1.25">'+S.nSets+'</b><small>Sätze</small></div>'+
+    (S.reps?'<div><b data-to="'+S.reps+'" data-dl="1.3">'+S.reps+'</b><small>Wdh.</small></div>':'')+
+    (S.hold?'<div><b>'+holdParts(S.hold)[0]+'</b><small>'+holdParts(S.hold)[1]+'</small></div>':'')+
+    (S.m?'<div><b data-to="'+S.m+'" data-dl="1.35">'+S.m+'</b><small>Minuten</small></div>':'');
   el.innerHTML='<span class="ring"></span>'+cf+
    '<svg class="chk" viewBox="0 0 104 104" aria-hidden="true"><circle cx="52" cy="52" r="48"/><path d="M30 54l15 15 29-32"/></svg>'+
-   '<h1>Training geschafft!</h1>'+
-   '<div class="cst"><div><b>'+nSets+'</b><small>Sätze</small></div><div><b>'+(m||'–')+'</b><small>Minuten</small></div>'+(prs?'<div><b>★ '+prs+'</b><small>Bestleistung'+(prs>1?'en':'')+'</small></div>':'')+'</div>'+
-   (w>0?'<div class="fl">'+flameSvg(w,w>=8?190:150)+'<b>'+w+(w===1?' Woche':' Wochen')+' in Serie</b><span>'+(reached?'Wochenziel erreicht – die Flamme wächst':(cnt+' von '+goal+' Trainings diese Woche'))+'</span></div>':
-     '<div class="fl"><span>'+cnt+' von '+goal+' Trainings diese Woche</span></div>')+
+   '<h1>'+esc(S.head)+'</h1>'+
+   '<div class="cst">'+tiles+'</div>'+
+   (S.cmp?'<p class="cmpl"><b>▲ '+S.up+'</b> von '+S.cmp+' Übungen besser als beim letzten Mal</p>':'')+
+   (S.prs.length?'<p class="pr">★ '+S.prs.slice(0,3).map(esc).join('<br>★ ')+'</p>':'')+
+   (w>0?'<div class="fl">'+flameSvg(w,w>=8?170:140)+(S.reached?'<em class="plus1">+1</em>':'')+'<b>'+w+(w===1?' Woche':' Wochen')+' in Serie</b><span>'+(S.reached?'Wochenziel erreicht – die Flamme wächst':(S.cnt+' von '+S.goal+' Trainings diese Woche'))+'</span></div>':
+     '<div class="fl"><span>'+S.cnt+' von '+S.goal+' Trainings diese Woche'+(S.cnt<S.goal?' – noch '+(S.goal-S.cnt)+' bis zur ersten Flamme':'')+'</span></div>')+
    '<button class="btn" data-cele="x">Weiter</button>';
   document.body.appendChild(el);
+  countUp(el);
   goalSound();
   var close=function(){if(!el.parentNode)return;el.classList.add('out');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},420)};
   el.addEventListener('click',close);
-  setTimeout(close,14000);
+  setTimeout(close,15000);
 }
 /* ---- Reihenfolge per langem Druck und Ziehen ---- */
 var dragBlock=0, DR=null;
@@ -2202,18 +2294,18 @@ var dragBlock=0, DR=null;
     if(!DR) return;
     var H=window.innerHeight, y=DR.y;
     if(y<100) window.scrollBy(0,-Math.min(18,(100-y)/4)); else if(y>H-100) window.scrollBy(0,Math.min(18,(y-(H-100))/4));
-    var c=DR.card, r=c.getBoundingClientRect(), nat=r.top-DR.t, want=DR.y-DR.grab, cy=want+r.height/2, pv=c.previousElementSibling, nx=c.nextElementSibling, q;
-    while(pv&&pv.classList.contains('exa')){q=pv.getBoundingClientRect();if(cy<q.top+q.height/2){c.parentNode.insertBefore(c,pv);DR.moved=true;pv=c.previousElementSibling}else break}
-    while(nx&&nx.classList.contains('exa')){q=nx.getBoundingClientRect();if(cy>q.top+q.height/2){c.parentNode.insertBefore(c,nx.nextSibling);DR.moved=true;nx=c.nextElementSibling}else break}
+    var c=DR.card, r=c.getBoundingClientRect(), nat=r.top-DR.t, want=DR.y-DR.grab, cy=want+r.height/2, pv=c.previousElementSibling, nx=c.nextElementSibling, q, K=DR.cls;
+    while(pv&&pv.classList.contains(K)){q=pv.getBoundingClientRect();if(cy<q.top+q.height/2){c.parentNode.insertBefore(c,pv);DR.moved=true;pv=c.previousElementSibling}else break}
+    while(nx&&nx.classList.contains(K)){q=nx.getBoundingClientRect();if(cy>q.top+q.height/2){c.parentNode.insertBefore(c,nx.nextSibling);DR.moved=true;nx=c.nextElementSibling}else break}
     r=c.getBoundingClientRect(); nat=r.top-DR.t;
     DR.t=want-nat; c.style.transform='translateY('+DR.t.toFixed(1)+'px)';
     DR.raf=requestAnimationFrame(loop);
   }
-  function start(id,y){
-    if(openId){openId=null;render()}
-    var c=document.querySelector('.exa[data-exid="'+id+'"]'); if(!c) return;
+  function start(id,y,pw){
+    if(!pw&&openId){openId=null;render()}
+    var c=pw?document.querySelector('.plist[data-w="'+pw+'"] .dr[data-exid="'+id+'"]'):document.querySelector('.exa[data-exid="'+id+'"]'); if(!c) return;
     var r=c.getBoundingClientRect();
-    DR={id:id,card:c,grab:Math.max(12,Math.min(r.height-12,y-r.top)),y:y,t:0,moved:false,raf:0};
+    DR={id:id,card:c,cls:pw?'dr':'exa',pw:pw,grab:Math.max(8,Math.min(r.height-8,y-r.top)),y:y,t:0,moved:false,raf:0};
     c.classList.add('dragging'); document.body.classList.add('dragmode'); buzz(18);
     loop();
   }
@@ -2223,17 +2315,20 @@ var dragBlock=0, DR=null;
     dragBlock=Date.now()+400;
     document.body.classList.remove('dragmode'); D.card.classList.remove('dragging'); D.card.style.transform='';
     if(D.moved){
-      var ids=[].map.call(document.querySelectorAll('.exa'),function(el){return el.dataset.exid}), k=todayKey();
-      if(!days[k]) days[k]={sets:[]};
-      days[k].order=ids; saveDay(k); buzz(10); showToast('Reihenfolge geändert');
+      var ids=[].map.call(D.card.parentNode.children,function(el){return el.dataset.exid}).filter(Boolean);
+      if(D.pw){cfg.plan[D.pw]=ids;saveCfg()}
+      else{var k=todayKey(); if(!days[k]) days[k]={sets:[]}; days[k].order=ids; saveDay(k)}
+      buzz(10); showToast('Reihenfolge geändert');
     }
     render();
   }
   document.addEventListener('pointerdown',function(ev){
     if(loading||DR||(ev.pointerType==='mouse'&&ev.button>0)) return;
-    var h=ev.target.closest&&ev.target.closest('.ex-head'); if(!h||!h.closest('.exa')) return;
-    var id=h.closest('.exa').dataset.exid; sx=ev.clientX; sy=ev.clientY; pid=ev.pointerId;
-    clearTimeout(timer); timer=setTimeout(function(){timer=null;start(id,sy)},430);
+    var t=ev.target.closest?ev.target:null; if(!t) return;
+    var h=t.closest('.exa .ex-head'), li=!h&&!t.closest('button')&&t.closest('.plist .dr');
+    if(!h&&!li) return;
+    var id=(h?h.closest('.exa'):li).dataset.exid, pw=li?li.parentNode.dataset.w:null; sx=ev.clientX; sy=ev.clientY; pid=ev.pointerId;
+    clearTimeout(timer); timer=setTimeout(function(){timer=null;start(id,sy,pw)},430);
   });
   document.addEventListener('pointermove',function(ev){
     if(DR){DR.y=ev.clientY;return}
