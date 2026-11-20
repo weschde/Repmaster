@@ -415,6 +415,14 @@ details.more summary::after{content:" ▾"}details.more[open] summary::after{con
 .fbrow{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:0 18px 12px;font-size:13px;color:var(--muted)}
 .fbrow .seg button{padding:6px 10px;font-size:13px}
 .donelist .fbrow{padding:0 18px 12px;margin-top:-4px}
+
+.fbrow.done{justify-content:space-between}.fbrow.done b{color:var(--accent-deep)}
+.linkbtn{all:unset;cursor:pointer;font:600 13px var(--f-body);color:var(--accent-deep);padding:6px 4px;border-radius:6px}.linkbtn:focus-visible{outline:3px solid var(--accent)}
+.fbcard{padding:12px 0 0;margin-bottom:12px}.fbcard .fbt{margin:0 18px 6px;font:600 15px var(--f-head);color:var(--ink)}.fbcard .fbrow{padding-bottom:12px}
+details.dmore{padding:0;margin-bottom:12px}details.dmore summary{list-style:none;cursor:pointer;padding:14px 18px;font:600 14px var(--f-body);color:var(--accent-deep)}details.dmore summary::-webkit-details-marker{display:none}
+details.dmore summary::after{content:" ▾"}details.dmore[open] summary::after{content:" ▴"}details.dmore .hex{padding:10px 18px}
+.dlinks{display:flex;justify-content:center;align-items:center;gap:6px;margin:0 0 12px;color:var(--muted)}
+.dh-fl{display:flex;align-items:center;gap:8px;font-size:14px;opacity:.95}.dh-fl b{font-weight:800}.dh-fl .flame{flex:none}
 #splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:max(8vh,env(safe-area-inset-top,0px)) !important;gap:10px;background:linear-gradient(165deg,#00A19B,#053f3a);color:#fff;text-align:center;padding:24px;transition:opacity .4s;cursor:pointer}
 #splash.out{opacity:0;pointer-events:none}
 #splash .glow{position:absolute;top:50%;left:50%;margin:-70vmin 0 0 -70vmin;width:140vmin;height:140vmin;border-radius:50%;background:radial-gradient(circle,rgba(90,240,215,.35),rgba(90,240,215,0) 60%);opacity:0;transform:scale(.4);animation:splglow 3s 1.1s ease-out forwards}
@@ -1502,9 +1510,12 @@ function ladderPanel(e){
   return h;
 }
 /* "Wie fühlte sich die Leiter an?" – shown on the collapsed done card and on the finish screen */
+var fbEdit={};
+var FBTXT={easy:'Leicht',ok:'Passt',hard:'Hart'};
 function fbRow(e,k){
   if(e.type!=='ladder') return '';
   var td=ladderDay(e,k); if(td.p==null||!td.ok) return '';
+  if(td.fb&&!fbEdit[e.id]) return '<div class="fbrow done"><span>Leiter bewertet: <b>'+FBTXT[td.fb]+'</b> ✓</span><button class="linkbtn" data-act="fbedit" data-id="'+e.id+'">Ändern</button></div>';
   return '<div class="fbrow"><span>Wie war die Leiter?</span><div class="seg" role="group" aria-label="Bewertung '+esc(e.name)+'">'+
     [['easy','Leicht'],['ok','Passt'],['hard','Hart']].map(function(o){return '<button aria-pressed="'+(td.fb===o[0])+'" data-act="fb" data-id="'+e.id+'" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+'</div></div>';
 }
@@ -1690,10 +1701,12 @@ function viewToday(){
     h+='<section class="donehero"><div class="dh-top"><div class="donemark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><div><h2>'+esc(S.head)+'</h2><p>Einheit '+esc(wt)+' · fertig um '+clock(endOf(fk))+'</p></div></div>'+
       '<div class="dh-tiles"><div><b data-count="'+S.nSets+'">'+S.nSets+'</b><small>Sätze</small></div>'+(S.reps?'<div><b data-count="'+S.reps+'">'+S.reps+'</b><small>Wdh.</small></div>':'')+(S.hold?'<div><b>'+holdParts(S.hold)[0]+'</b><small>'+holdParts(S.hold)[1]+'</small></div>':'')+(S.m?'<div><b data-count="'+S.m+'">'+S.m+'</b><small>Minuten</small></div>':'')+'</div>'+
       (S.cmp?'<div class="dh-cmp"><span><b>▲ '+S.up+'</b> besser</span><span>= '+S.eq+' gleich</span>'+(S.dn?'<span>▼ '+S.dn+'</span>':'')+(S.prs.length?'<span class="st">★ '+S.prs.length+'</span>':'')+'</div>':'')+
+      '<div class="dh-fl">'+(S.w>0?flameSvg(S.w,26)+'<span><b>'+S.w+(S.w===1?' Woche':' Wochen')+'</b> in Serie · ':'<span>')+'diese Woche '+S.cnt+'/'+S.goal+(S.next?' · nächstes Mal Einheit '+S.next:'')+'</span></div>'+
       '</section>';
-    h+='<section class="card donelist">'+S.rows.map(function(r){var re=getEx(r.e);return '<div class="hex"><div class="hl"><b>'+esc(r.name)+'</b><small>'+esc(r.stage)+'</small></div><div class="hr"><b>'+(r.pr?'<i class="star" aria-label="Bestleistung">★</i> ':'')+esc(r.m.txt)+'</b>'+trendPill(r.c)+'</div></div>'+(re?fbRow(re,fk):'')}).join('')+'</section>';
-    h+='<section class="card pad dh-next">'+(S.w>0?flameSvg(S.w,52):'')+'<div><b>'+(S.w>0?S.w+(S.w===1?' Woche':' Wochen')+' in Serie':'Diese Woche '+S.cnt+' von '+S.goal)+'</b><span>'+(S.w>0?'Diese Woche '+S.cnt+' von '+S.goal+(S.cnt>=S.goal?' ✓':''):'Erreiche dein Wochenziel, dann zündet die Flamme.')+(S.next?' · Nächstes Mal: Einheit '+S.next:'')+'</span></div></section>';
-    h+='<div class="row" style="justify-content:center;gap:8px;margin:0 0 12px;flex-wrap:wrap"><button class="btn" data-act="replay">Nochmal feiern</button><button class="btn" data-act="reopen">Weiter trainieren</button></div>';
+    var unr=S.rows.map(function(r){return getEx(r.e)}).filter(function(e,i,a){return e&&a.indexOf(e)===i&&e.type==='ladder'}).filter(function(e){return !ladderDay(e,fk).fb||fbEdit[e.id]}).map(function(e){return fbRow(e,fk)?{e:e,row:fbRow(e,fk)}:null}).filter(Boolean);
+    unr.forEach(function(x){h+='<section class="card fbcard"><p class="fbt">'+esc(x.e.name)+'</p>'+x.row+'</section>'});
+    h+='<details class="card dmore"><summary>Alle Übungen ansehen</summary>'+S.rows.map(function(r){return '<div class="hex"><div class="hl"><b>'+esc(r.name)+'</b><small>'+esc(r.stage)+'</small></div><div class="hr"><b>'+(r.pr?'<i class="star" aria-label="Bestleistung">★</i> ':'')+esc(r.m.txt)+'</b>'+trendPill(r.c)+'</div></div>'}).join('')+'</details>';
+    h+='<div class="dlinks"><button class="linkbtn" data-act="reopen">Weiter trainieren</button><span aria-hidden="true">·</span><button class="linkbtn" data-act="replay">Nochmal feiern</button></div>';
     h+=noteCardHtml();
     return h;
   }
@@ -1967,7 +1980,7 @@ function editForm(e){
 }
 var formType=null;
 function gearBtn(){return '<button class="themebtn gearbtn" data-act="tab" data-v="settings" aria-label="Einstellungen">'+GEAR+'</button>'}
-var APPVER='20.11.2026 (Version 3)';
+var APPVER='20.11.2026 (Version 4)';
 function logicHtml(){
   var st=cfg.settings, cyc=st.cycle||6, g=st.goal||3;
   function sec(t,items){return '<h4>'+t+'</h4><ul>'+items.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
@@ -2651,8 +2664,11 @@ document.addEventListener('click',function(ev){
       if(!days[tk]) days[tk]={sets:[]};
       days[tk].fb=days[tk].fb||{};
       days[tk].fb[id]=v;
-      saveDay(tk);
+      saveDay(tk); delete fbEdit[id];
+      var fs=e?suggestFor(e):null;
+      showToast(FBTXT[v]+' gespeichert · '+(fs&&fs.kind!=='info'&&fs.kind!=='back'?'nächstes Mal: '+fs.title.replace(e.name+': ',''):fs&&fs.kind==='back'?'nächstes Mal ein Schritt zurück':v==='hard'?'die Leiter bleibt erst mal so':'weiter wie geplant'));
       break;
+    case 'fbedit': fbEdit[id]=true; break;
     case 'rung':
       if(!e) return;
       var ls=ladderState(e), reps=ls.rr[ls.r];
