@@ -1355,11 +1355,10 @@ function viewStats(){
   var fn=flameNext(streak), thisN=weeks[weeks.length-1].n, lvl=flameLvl(streak);
   var pct=fn?Math.round((streak-fn.from)/(fn.to-fn.from)*100):100;
   h+='<section class="card pad flamecard lv'+lvl+'">'+flameSvg(streak,70+lvl*9)+'<div class="ft2"><span class="big">'+streak+'</span><b>'+(streak===1?'Woche':'Wochen')+' in Serie</b>'+
-    (streak>0?'<span class="flname">'+esc(flameName(streak))+'</span>':'')+
-    (fn&&streak>0?'<div class="flbar" role="img" aria-label="Noch '+fn.n+' Wochen bis '+esc(fn.name)+'"><i style="width:'+pct+'%"></i></div><p class="note" style="margin:4px 0 0">Noch '+fn.n+(fn.n===1?' Woche':' Wochen')+' bis <b>'+esc(fn.name)+'</b> · diese Woche '+thisN+'/'+goal+'</p>':
+    (fn&&streak>0?'<div class="flbar" role="img" aria-label="Noch '+fn.n+' Wochen bis zur nächsten Flammenstufe"><i style="width:'+pct+'%"></i></div><p class="note" style="margin:4px 0 0">Noch '+fn.n+(fn.n===1?' Woche':' Wochen')+' bis die Flamme wächst · diese Woche '+thisN+'/'+goal+'</p>':
       '<p class="note" style="margin:4px 0 0">'+(streak===0?'Erreiche dein Wochenziel von '+goal+' Trainings, dann zündet die Flamme.':'Höchste Stufe erreicht · diese Woche '+thisN+'/'+goal)+'</p>')+
     (function(){var J=streakInfo(goal).jokers;return J.length?'<p class="joker">Joker eingesetzt: '+J.map(function(k){return 'KW '+isoWeek(parseYmd(k))}).join(', ')+'</p>':''})()+
-    '<details class="more"><summary>So zählt die Serie</summary><p>Eine Woche zählt, wenn du dein Wochenziel von '+goal+' Trainings erreichst. Die laufende Woche bricht die Serie nie. Joker: Eine verpasste Woche lässt die Flamme nicht erlöschen, wenn du davor und danach dein Ziel schaffst, höchstens einmal in 6 Wochen. Krank-Pausen zählen nicht. Stufen: '+FLAMES.slice(1).map(function(f){return f[1]+' ('+f[0]+')'}).join(', ')+'.</p></details></div></section>';
+    '<details class="more"><summary>So zählt die Serie</summary><p>Eine Woche zählt, wenn du dein Wochenziel von '+goal+' Trainings erreichst. Die laufende Woche bricht die Serie nie. Joker: Eine verpasste Woche lässt die Flamme nicht erlöschen, wenn du davor und danach dein Ziel schaffst, höchstens einmal in 6 Wochen. Krank-Pausen zählen nicht. Die Flamme wächst nach 1, 2, 4, 8, 12, 18, 26 und 52 Wochen.</p></details></div></section>';
   if(!statEx||!getEx(statEx)){
     var wd=cfg.exercises.filter(function(x){return sessionsOf(x.id).length})[0];
     statEx=(wd||cfg.exercises[0]||{}).id;
@@ -2017,7 +2016,7 @@ function editForm(e){
 }
 var formType=null;
 function gearBtn(){return '<button class="themebtn gearbtn" data-act="tab" data-v="settings" aria-label="Einstellungen">'+GEAR+'</button>'}
-var APPVER='21.11.2026 (Version 6)';
+var APPVER='21.11.2026 (Version 7)';
 function logicHtml(){
   var st=cfg.settings, cyc=st.cycle||6, g=st.goal||3;
   function sec(t,items){return '<h4>'+t+'</h4><ul>'+items.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
@@ -2050,7 +2049,7 @@ function logicHtml(){
    ])+
    sec('Flamme',[
      'Eine Woche zählt, wenn du '+g+' Trainings schaffst. Ein Joker überbrückt eine verpasste Woche (höchstens einmal in 6 Wochen), Krank-Pausen zählen nicht.',
-     'Stufen: '+FLAMES.slice(1).map(function(f){return f[1]+' ab '+f[0]}).join(', ')+' Wochen. Mit jeder Stufe wird die Flamme größer und heller, ab Lodern mit Aura, ab Inferno mit Glutring, als Legende mit goldenen Funken.'
+     'Die Flamme wächst nach 1, 2, 4, 8, 12, 18, 26 und 52 Wochen: größer, heller, mehr Funken, später mit Aura, Glutring und goldenen Funken.'
    ])+
    '<p class="note">Die Schwellen sind Faustregeln aus der Trainingspraxis, keine exakten Studienwerte. Leiter-Obergrenze, Bereiche und Stufen kannst du pro Übung ändern.</p></div>';
 }
