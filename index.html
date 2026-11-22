@@ -604,39 +604,35 @@ details.dmore summary::after{content:" ▾"}details.dmore[open] summary::after{c
   .cnt.ok.new svg path{stroke-dashoffset:0}
 }
 
-/* ---- start screen: calm overview before the session ---- */
-.start{position:relative;overflow:hidden;border-radius:28px;padding:22px 20px 20px;margin:0 0 12px;color:#F2FFFD;
-  background:radial-gradient(120% 80% at 100% 0%,rgba(127,243,230,.38),transparent 55%),linear-gradient(150deg,#00403C 0%,#006B66 55%,#00918B 100%);
-  box-shadow:0 18px 40px rgba(0,80,75,.28);display:grid;gap:16px;animation:stIn .5s cubic-bezier(.2,.8,.2,1) both}
-.start::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;border:1px solid rgba(255,255,255,.14);box-shadow:0 0 0 28px rgba(255,255,255,.04),0 0 0 60px rgba(255,255,255,.03);pointer-events:none}
-.st-k{font:700 12px var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:rgba(242,255,253,.75)}
-.st-u{display:flex;align-items:baseline;gap:12px;font:600 26px/1 var(--f-head);margin-top:4px}
-.st-u b{font:700 76px/.9 var(--f-num);letter-spacing:-.04em;background:linear-gradient(180deg,#FFFFFF,#9FF6EC);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 18px rgba(127,243,230,.35))}
-.st-m{font:600 15px var(--f-body);color:rgba(242,255,253,.8);margin-top:-6px}
-.st-pill{justify-self:start;font:700 12px var(--f-body);padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.16);color:#fff}
-.st-l{list-style:none;margin:0;padding:0;display:grid;gap:8px;position:relative;z-index:1}
-.st-l li{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);animation:stRow .45s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(120ms + var(--i)*60ms)}
-.st-l i{font:700 14px/1 var(--f-num);font-style:normal;width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:50%;background:rgba(255,255,255,.16)}
-.st-l b{display:block;font:600 16px/1.2 var(--f-head)}
-.st-l small{display:block;font-size:13px;color:rgba(242,255,253,.72);margin-top:2px}
-.st-go{position:relative;z-index:1;min-height:62px;border:0;border-radius:20px;background:#fff;color:#00524E;font:700 19px var(--f-head);display:flex;align-items:center;justify-content:center;gap:10px;
+/* ---- start screen: one big card, one button. Sized to the phone screen; nothing wider than the card. ---- */
+.start{position:relative;overflow:hidden;box-sizing:border-box;width:100%;max-width:100%;min-width:0;border-radius:28px;padding:22px 20px 20px;margin:0 0 14px;color:#F2FFFD;
+  min-height:clamp(380px,calc(100svh - 290px),600px);display:flex;flex-direction:column;align-items:center;text-align:center;
+  background:radial-gradient(90% 60% at 50% 38%,rgba(127,243,230,.30),transparent 70%),linear-gradient(160deg,#003B37 0%,#00665F 55%,#008E87 100%);
+  box-shadow:0 18px 40px rgba(0,80,75,.28);animation:stIn .5s cubic-bezier(.2,.8,.2,1) both}
+.st-k{font:700 12px var(--f-body);letter-spacing:.16em;text-transform:uppercase;color:rgba(242,255,253,.72);align-self:flex-start}
+.st-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;min-width:0;position:relative;padding:10px 0}
+.st-orb{position:absolute;left:50%;top:50%;width:min(64vw,250px);aspect-ratio:1;transform:translate(-50%,-56%);border-radius:50%;pointer-events:none;
+  border:1px solid rgba(255,255,255,.16);box-shadow:0 0 0 22px rgba(255,255,255,.045),0 0 0 48px rgba(255,255,255,.03),inset 0 0 60px rgba(127,243,230,.18);animation:stOrb 4s ease-in-out infinite}
+.st-t{position:relative;font:600 22px/1 var(--f-head);letter-spacing:.02em;color:rgba(242,255,253,.88)}
+.st-b{position:relative;font:700 clamp(120px,40vw,170px)/.86 var(--f-head);letter-spacing:-.04em;background:linear-gradient(180deg,#FFFFFF 20%,#9FF6EC);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 24px rgba(127,243,230,.45))}
+.st-m{position:relative;font:600 15px var(--f-body);color:rgba(242,255,253,.8);margin-top:6px}
+.st-pill{position:relative;font:700 12px var(--f-body);padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.16);color:#fff;margin-top:4px}
+.st-go{position:relative;width:100%;min-height:62px;border:0;border-radius:20px;background:#fff;color:#00524E;font:700 19px var(--f-head);display:flex;align-items:center;justify-content:center;gap:10px;
   box-shadow:0 10px 28px rgba(0,30,28,.35),0 0 0 0 rgba(255,255,255,.5);animation:stPulse 2.6s 1s ease-out infinite;transition:transform .12s}
 .st-go:active{transform:scale(.97)}
-.st-go svg{width:22px;height:22px;fill:currentColor}
-.st-foot{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
-.st-foot .wkstrip{flex:1;--accent-soft:rgba(255,255,255,.16);color:#fff}
-.st-foot .wkstrip small,.st-foot .wkstrip .wn{color:rgba(242,255,253,.75)}.st-foot .wkstrip .wn b{color:#fff}
-.st-foot .wkstrip .wd.on i{background:#fff;color:#00524E;box-shadow:0 0 12px rgba(255,255,255,.45)}
-.st-foot .wkstrip .wd.today i{outline-color:#fff}
-.st-fl{display:flex;align-items:center;gap:4px;font:700 18px var(--f-num);color:#fff;background:none;border:0;padding:0}
-.st-sub{display:flex;justify-content:center;gap:14px;margin:4px 0 14px}
-.st-note{text-align:center;font-size:13px;color:var(--muted);margin:-6px 0 12px}
+.st-go svg{width:22px;height:22px;fill:currentColor;flex:none}
+.st-row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin:0 0 6px;text-align:center}
+.st-row b{color:var(--ink);font-family:var(--f-num)}
+.st-row .flm{display:inline-flex;align-items:center;background:none;border:0;padding:0}
+.st-sub{display:flex;justify-content:center;gap:14px;margin:2px 0 10px}
+.st-note{text-align:center;font-size:13px;color:var(--muted);margin:-4px 0 12px}
 @keyframes stIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes stRow{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes stOrb{50%{box-shadow:0 0 0 26px rgba(255,255,255,.06),0 0 0 56px rgba(255,255,255,.035),inset 0 0 70px rgba(127,243,230,.26)}}
 @keyframes stPulse{0%{box-shadow:0 10px 28px rgba(0,30,28,.35),0 0 0 0 rgba(255,255,255,.45)}70%,100%{box-shadow:0 10px 28px rgba(0,30,28,.35),0 0 0 14px rgba(255,255,255,0)}}
 #view.enter>*{animation:stRow .5s cubic-bezier(.2,.8,.2,1) both}
 #view.enter>*:nth-child(2){animation-delay:.05s}#view.enter>*:nth-child(3){animation-delay:.1s}#view.enter>*:nth-child(4){animation-delay:.15s}#view.enter>*:nth-child(5){animation-delay:.2s}#view.enter>*:nth-child(6){animation-delay:.25s}#view.enter>*:nth-child(n+7){animation-delay:.3s}
-@media (prefers-reduced-motion: reduce){.start,.st-l li,.st-go,#view.enter>*{animation:none!important}}
+@media (prefers-reduced-motion: reduce){.start,.st-orb,.st-go,#view.enter>*{animation:none!important}}
 </style>
 
 <div id="splash" role="dialog" aria-label="Begrüßung"><div class="glow"></div><svg id="spl-fig" viewBox="30 0 140 180" aria-hidden="true" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"><path d="M44 176V60M156 176V60" stroke-width="3" opacity=".28"/><path d="M34 60H166" stroke-width="6" stroke="#8EF0E6"/><circle id="spl-ping" cx="100" cy="60" r="4" stroke="#8EF0E6" stroke-width="2" opacity="0"/><polyline id="spl-ll" stroke-width="5.5" points="0,0 0,0 0,0"/><polyline id="spl-lr" stroke-width="5.5" points="0,0 0,0 0,0"/><polyline id="spl-torso" stroke-width="6" points="0,0 0,0"/><polyline id="spl-sh" stroke-width="6" points="0,0 0,0"/><polyline id="spl-al" stroke="#fff" stroke-width="5" points="0,0 0,0 0,0"/><polyline id="spl-ar" stroke="#fff" stroke-width="5" points="0,0 0,0 0,0"/><circle id="spl-head" r="8.5" fill="#fff" stroke="#00A19B" stroke-width="2" cx="0" cy="0"/></svg><div class="wm" aria-label="Repmaster"><span class="r" style="--i:0">R</span><span class="r" style="--i:1">e</span><span class="r" style="--i:2">p</span><span class="m" style="--i:3">m</span><span class="m" style="--i:4">a</span><span class="m" style="--i:5">s</span><span class="m" style="--i:6">t</span><span class="m" style="--i:7">e</span><span class="m" style="--i:8">r</span></div><div class="ul"></div><h1 class="tx" id="spl-h"></h1><small>Tippen zum Überspringen</small></div>
@@ -2025,22 +2021,23 @@ function weekStrip(noFlame){
   if(sw>0&&!noFlame){var i0=h.indexOf('>')+1;h=h.slice(0,i0)+'<button class="flm" data-act="tab" data-v="stats" aria-label="'+sw+(sw===1?' Woche':' Wochen')+' in Serie">'+flameSvg(sw,30)+'<b>'+sw+'</b></button>'+h.slice(i0)}
   return h+'<span class="wn"><b>'+n+'</b>/'+(cfg.settings.goal||3)+'</span></div>';
 }
-/* start screen: before the first set of the day only the overview and one button */
+/* start screen: before the first set of the day only which unit is due, and one button */
 function startScreen(wt,list,fk){
   var pm=dayKeys().filter(function(k){return days[k].plan===wt&&k<fk}).slice(-6).map(dayMinutes).filter(Boolean);
   var avgM=pm.length?Math.round(pm.reduce(function(a,b){return a+b},0)/pm.length/5)*5:unitEst(wt);
   var mode=inDeload(fk)?'Leichte Woche':lightDay(fk)?(days[fk]&&days[fk].light?'Leichter Tag':'Wiedereinstieg · etwas leichter'):'';
   var nh=(cfg.log||[]).filter(function(x){return !x.seen}).length+(deloadInfo()?1:0);
   try{if(reviewDue()&&cfg.revSnooze!==todayKey()&&reviewSugs().length)nh++}catch(e){}
-  var F=flameNow(), sw=streakWeeks(cfg.settings.goal||3);
+  var F=flameNow(), goal=cfg.settings.goal||3, sw=streakWeeks(goal), m=monday(new Date()), wk=0;
+  for(var i=0;i<7;i++){var k=ymd(new Date(m.getFullYear(),m.getMonth(),m.getDate()+i));if(days[k]&&(days[k].sets||[]).length)wk++}
   var h='<section class="start" aria-label="Heutiges Training">'+
-    '<div><p class="st-k">Heute dran</p><h2 class="st-u"><span>Einheit</span><b>'+esc(wt)+'</b></h2></div>'+
-    '<p class="st-m">'+list.length+(list.length===1?' Übung':' Übungen')+(avgM?' · ca. '+avgM+' min':'')+'</p>'+
-    (mode?'<span class="st-pill">'+esc(mode)+'</span>':'')+
-    '<ol class="st-l">'+list.map(function(e,i){return '<li style="--i:'+i+'"><i>'+(i+1)+'</i><span><b>'+esc(e.name)+'</b><small>'+esc(subText(e))+'</small></span></li>'}).join('')+'</ol>'+
-    '<button class="st-go" data-act="startday"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>Einheit starten</button>'+
-    '<div class="st-foot">'+((sw>0||F.l>0)?'<button class="st-fl" data-act="tab" data-v="stats" aria-label="'+sw+(sw===1?' Woche':' Wochen')+' in Serie">'+flameSvg(sw,30,F.l,F.rings)+sw+'</button>':'')+weekStrip(true)+'</div>'+
+    '<p class="st-k">Heute dran</p>'+
+    '<div class="st-mid"><div class="st-orb" aria-hidden="true"></div><span class="st-t">Training</span><b class="st-b">'+esc(wt)+'</b>'+
+    '<span class="st-m">'+list.length+(list.length===1?' Übung':' Übungen')+(avgM?' · ca. '+avgM+' min':'')+'</span>'+
+    (mode?'<span class="st-pill">'+esc(mode)+'</span>':'')+'</div>'+
+    '<button class="st-go" data-act="startday"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>Training starten</button>'+
     '</section>';
+  h+='<p class="st-row">'+((sw>0||F.l>0)?'<button class="flm" data-act="tab" data-v="stats" aria-label="Flamme ansehen">'+flameSvg(sw,24,F.l,F.rings)+'</button><span><b>'+sw+'</b>'+(sw===1?' Woche':' Wochen')+' in Serie</span><span aria-hidden="true">·</span>':'')+'<span>diese Woche <b>'+wk+'</b>/'+goal+'</span></p>';
   h+='<div class="st-sub"><button class="linkbtn" data-act="tedit">Heute anpassen</button></div>';
   if(nh) h+='<p class="st-note">'+nh+(nh===1?' Hinweis wartet':' Hinweise warten')+' im Training auf dich.</p>';
   return h;
@@ -2337,7 +2334,7 @@ function editForm(e){
 }
 var formType=null;
 function gearBtn(){return '<button class="themebtn gearbtn" data-act="tab" data-v="settings" aria-label="Einstellungen">'+GEAR+'</button>'}
-var APPVER='21.11.2026 (Version 19)';
+var APPVER='22.11.2026 (Version 20)';
 function logicHtml(){
   var st=cfg.settings, cyc=st.cycle||6, g=st.goal||3;
   function sec(t,items){return '<h4>'+t+'</h4><ul>'+items.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
