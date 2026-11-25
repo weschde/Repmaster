@@ -704,6 +704,23 @@ body.obmode .nav{display:none}
 .tr-btns{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
 @keyframes trPulse{50%{box-shadow:0 0 30px rgba(127,243,230,.95);transform:scale(1.02)}}
 @media (prefers-reduced-motion: reduce){.tr-hole{transition:none}.tr-hole::after,.tr-bub{animation:none}}
+
+/* ---- free mode picker ---- */
+.start.free{min-height:0;gap:12px;align-items:stretch;text-align:left}
+.start.free .st-k{align-self:flex-start}
+.fr-mid{flex:none;align-items:flex-start;padding:0;gap:4px}
+.fr-mid .st-t{font-size:24px;line-height:1.15}
+.fr-mid .st-m{margin-top:0;font-size:14px;font-weight:500}
+.fr-list{display:grid;gap:8px;position:relative;z-index:1}
+.fr-opt{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.14);cursor:pointer;min-width:0;transition:background .2s,border-color .2s}
+.fr-opt>span{flex:1;min-width:0}.fr-opt b{display:block;font:600 15px/1.25 var(--f-head);color:#fff}.fr-opt small{display:block;font-size:12.5px;color:rgba(242,255,253,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr-opt em{font-style:normal;font-size:12px;color:rgba(242,255,253,.7);white-space:nowrap}.fr-opt em.warn{color:#FFD58A}
+.fr-opt i{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:2px solid rgba(255,255,255,.35);font:700 13px/1 var(--f-body);font-style:normal;color:transparent}
+.fr-opt.on{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.6)}
+.fr-opt.on i{background:#fff;border-color:#fff;color:#00524E}
+.fr-opt:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.start.free .st-go{font-size:16px;text-align:center;line-height:1.2;padding:0 14px}
+.start.free .st-go[disabled]{opacity:.55;animation:none}
 </style>
 
 <div id="splash" role="dialog" aria-label="Begrüßung"><div class="glow"></div><svg id="spl-fig" viewBox="30 0 140 180" aria-hidden="true" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"><path d="M44 176V60M156 176V60" stroke-width="3" opacity=".28"/><path d="M34 60H166" stroke-width="6" stroke="#8EF0E6"/><circle id="spl-ping" cx="100" cy="60" r="4" stroke="#8EF0E6" stroke-width="2" opacity="0"/><polyline id="spl-ll" stroke-width="5.5" points="0,0 0,0 0,0"/><polyline id="spl-lr" stroke-width="5.5" points="0,0 0,0 0,0"/><polyline id="spl-torso" stroke-width="6" points="0,0 0,0"/><polyline id="spl-sh" stroke-width="6" points="0,0 0,0"/><polyline id="spl-al" stroke="#fff" stroke-width="5" points="0,0 0,0 0,0"/><polyline id="spl-ar" stroke="#fff" stroke-width="5" points="0,0 0,0 0,0"/><circle id="spl-head" r="8.5" fill="#fff" stroke="#00A19B" stroke-width="2" cx="0" cy="0"/></svg><div class="wm" aria-label="Repmaster"><span class="r" style="--i:0">R</span><span class="r" style="--i:1">e</span><span class="r" style="--i:2">p</span><span class="m" style="--i:3">m</span><span class="m" style="--i:4">a</span><span class="m" style="--i:5">s</span><span class="m" style="--i:6">t</span><span class="m" style="--i:7">e</span><span class="m" style="--i:8">r</span></div><div class="ul"></div><h1 class="tx" id="spl-h"></h1><small>Tippen zum Überspringen</small></div>
@@ -784,7 +801,11 @@ function adopt(c){
 }
 function getEx(id){return cfg.exercises.find(function(e){return e.id===id})}
 /* A and B alternate with every training session, not every week. */
+/* training mode: 'ab' = fixed units A/B in rotation, 'free' = one pool of exercises, picked fresh each session (unit 'F') */
+function UNITS(){return cfg.mode==='free'?['F']:['A','B']}
+function unitName(w){return w==='F'?'Freies Training':'Einheit '+w}
 function weekType(){
+  if(cfg.mode==='free') return 'F';
   var t=todayKey();
   if(days[t]&&days[t].plan) return days[t].plan;
   if(cfg.override&&cfg.override.d===t) return cfg.override.t;
@@ -924,6 +945,81 @@ function bell(f,t,v,d,cat,wet){
   var h=a.createOscillator(), hg=a.createGain(); h.frequency.value=f*2; h.connect(hg); env(hg,t0,v*0.25,0.003,d*0.4); sOut(a,hg,0.2);
   c.start(t0); m.start(t0); h.start(t0); c.stop(t0+d+0.05); m.stop(t0+d+0.05); h.stop(t0+d+0.05);
 }
+/* fire body: noise through a low-pass that opens quickly (ignition) and closes again while it fades (roar) */
+function fire(t,d,f1,f2,v,cat){
+  if(!cfg.settings.sound||volOf(cat||'r')<=0) return; var a=bus(); if(!a) return;
+  var t0=a.currentTime+(t||0), n=Math.floor(a.sampleRate*(d+0.05)), b=a.createBuffer(1,n,a.sampleRate), dd=b.getChannelData(0), last=0;
+  for(var i=0;i<n;i++){var w=Math.random()*2-1;last=(last+0.06*w)/1.06;dd[i]=w*0.6+last*3}
+  var src=a.createBufferSource(), fl=a.createBiquadFilter(), g=a.createGain();
+  src.buffer=b; fl.type='lowpass'; fl.Q.value=0.9; fl.frequency.setValueAtTime(f1,t0); fl.frequency.exponentialRampToValueAtTime(f2,t0+d*0.22); fl.frequency.exponentialRampToValueAtTime(Math.max(200,f1*1.5),t0+d);
+  src.connect(fl); fl.connect(g); g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(Math.min(3,v*volOf(cat||'r')),t0+d*0.12); g.gain.exponentialRampToValueAtTime(Math.min(3,v*volOf(cat||'r'))*0.35,t0+d*0.45); g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+  sOut(a,g,0.15); src.start(t0); src.stop(t0+d+0.05);
+}
+/* soft mallet voice: like the kalimba but rounder - slower attack, no click, quieter overtone */
+function mar(f,t,v,d,cat,wet){
+  t=t||0; v=v==null?0.5:v; d=d||0.3; cat=cat||'r';
+  vx({f:f,t:t,d:d,v:v,cat:cat,a:0.012,wet:wet});
+  vx({f:f,t:t,d:Math.min(0.12,d*0.4),type:'triangle',v:v*0.25,cat:cat,a:0.01});
+  if(f*4<16000) vx({f:f*4,t:t,d:0.07,v:v*0.08,cat:cat,a:0.006});
+}
+/* soft whoosh: filtered noise that swells in slowly and fades out, filter opens towards the middle */
+function whoosh(t,d,f1,f2,v,cat){
+  if(!cfg.settings.sound||volOf(cat||'r')<=0) return; var a=bus(); if(!a) return;
+  var t0=a.currentTime+(t||0), n=Math.floor(a.sampleRate*(d+0.05)), b=a.createBuffer(2,n,a.sampleRate);
+  for(var ch=0;ch<2;ch++){var dd=b.getChannelData(ch),last=0;for(var i=0;i<n;i++){var w=Math.random()*2-1;last=(last+0.04*w)/1.04;dd[i]=w*0.35+last*3.5}}
+  var src=a.createBufferSource(), fl=a.createBiquadFilter(), g=a.createGain(), V=Math.min(3,v*volOf(cat||'r'));
+  src.buffer=b; fl.type='lowpass'; fl.Q.value=1.2; fl.frequency.setValueAtTime(f1,t0); fl.frequency.exponentialRampToValueAtTime(f2,t0+d*0.55); fl.frequency.exponentialRampToValueAtTime(f1,t0+d);
+  src.connect(fl); fl.connect(g); g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(V,t0+d*0.5); g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+  sOut(a,g,0.3); src.start(t0); src.stop(t0+d+0.05);
+}
+/* engine: a sawtooth whose pitch revs up, drops at a gear change, revs again and falls as it passes by; low-pass and a fast tremolo give the growl */
+function engine(t,d,v,cat){
+  if(!cfg.settings.sound||volOf(cat||'r')<=0) return; var a=bus(); if(!a) return;
+  var t0=a.currentTime+(t||0), V=Math.min(3,v*volOf(cat||'r')), o=a.createOscillator(), o2=a.createOscillator(), fl=a.createBiquadFilter(), g=a.createGain(), trem=a.createOscillator(), tg=a.createGain(), am=a.createGain();
+  o.type='sawtooth'; o2.type='square';
+  [[o,1],[o2,0.5]].forEach(function(x){var f=x[0].frequency,k=x[1];f.setValueAtTime(90*k,t0);f.exponentialRampToValueAtTime(260*k,t0+d*0.38);f.exponentialRampToValueAtTime(180*k,t0+d*0.43);f.exponentialRampToValueAtTime(340*k,t0+d*0.75);f.exponentialRampToValueAtTime(210*k,t0+d)});
+  fl.type='lowpass'; fl.Q.value=2; fl.frequency.setValueAtTime(600,t0); fl.frequency.exponentialRampToValueAtTime(2600,t0+d*0.75); fl.frequency.exponentialRampToValueAtTime(900,t0+d);
+  trem.frequency.value=38; tg.gain.value=0.35; am.gain.value=1; trem.connect(tg); tg.connect(am.gain);
+  var g2=a.createGain(); g2.gain.value=0.35; o.connect(fl); o2.connect(g2); g2.connect(fl); fl.connect(am); am.connect(g);
+  g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(V*0.6,t0+0.08); g.gain.exponentialRampToValueAtTime(V,t0+d*0.72); g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+  sOut(a,g,0.12); [o,o2,trem].forEach(function(x){x.start(t0);x.stop(t0+d+0.05)});
+}
+/* engine revving in neutral: idle rumble with blips; each blip = rpm shoots up fast and falls back slower.
+   pts: [start, peak rpm-frequency, rise, fall]; growl comes from a tremolo that follows the rpm */
+function revs(t,d,pts,v,cat){
+  if(!cfg.settings.sound||volOf(cat||'r')<=0) return; var a=bus(); if(!a) return;
+  var t0=a.currentTime+(t||0), V=Math.min(3,v*volOf(cat||'r')), idle=48;
+  var o=a.createOscillator(), o2=a.createOscillator(), fl=a.createBiquadFilter(), g=a.createGain(), trem=a.createOscillator(), tg=a.createGain(), am=a.createGain(), sub=a.createGain();
+  o.type='sawtooth'; o2.type='square'; trem.type='sine'; fl.type='lowpass'; fl.Q.value=3;
+  var F=[o.frequency,o2.frequency,trem.frequency,fl.frequency], K=[1,0.5,0.5,7];
+  F.forEach(function(p,i){p.setValueAtTime(idle*K[i],t0)});
+  g.gain.setValueAtTime(0.0001,t0); g.gain.exponentialRampToValueAtTime(V*0.35,t0+0.12);
+  pts.forEach(function(q){var ts=t0+q[0];
+    F.forEach(function(p,i){p.setValueAtTime(idle*K[i],ts);p.exponentialRampToValueAtTime(q[1]*K[i],ts+q[2]);p.exponentialRampToValueAtTime(idle*K[i],ts+q[2]+q[3])});
+    g.gain.setValueAtTime(V*0.35,ts);g.gain.exponentialRampToValueAtTime(V,ts+q[2]);g.gain.exponentialRampToValueAtTime(V*0.35,ts+q[2]+q[3]);
+  });
+  g.gain.setValueAtTime(V*0.35,t0+d-0.35); g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+  tg.gain.value=0.45; am.gain.value=1; sub.gain.value=0.4;
+  trem.connect(tg); tg.connect(am.gain); o.connect(fl); o2.connect(sub); sub.connect(fl); fl.connect(am); am.connect(g); sOut(a,g,0.1);
+  [o,o2,trem].forEach(function(x){x.start(t0);x.stop(t0+d+0.05)});
+}
+/* driving away: from idle the rpm climbs through three gears (short dips at each shift) while the car moves off -
+   volume and brightness fall and the pitch sags a little at the end, so it sounds like it is leaving */
+function launch(t,d,v,cat){
+  if(!cfg.settings.sound||volOf(cat||'r')<=0) return; var a=bus(); if(!a) return;
+  var t0=a.currentTime+(t||0), V=Math.min(3,v*volOf(cat||'r'));
+  var o=a.createOscillator(), o2=a.createOscillator(), fl=a.createBiquadFilter(), g=a.createGain(), trem=a.createOscillator(), tg=a.createGain(), am=a.createGain(), sub=a.createGain();
+  o.type='sawtooth'; o2.type='square'; fl.type='lowpass'; fl.Q.value=2.5;
+  var P=[[0,60],[0.3,240],[0.34,170],[0.62,290],[0.66,210],[0.9,330],[1,280]];
+  [[o.frequency,1],[o2.frequency,0.5],[trem.frequency,0.5]].forEach(function(x){x[0].setValueAtTime(P[0][1]*x[1],t0);P.slice(1).forEach(function(q){x[0].exponentialRampToValueAtTime(q[1]*x[1],t0+q[0]*d)})});
+  fl.frequency.setValueAtTime(500,t0); fl.frequency.exponentialRampToValueAtTime(2600,t0+d*0.3); fl.frequency.exponentialRampToValueAtTime(1800,t0+d*0.65); fl.frequency.exponentialRampToValueAtTime(500,t0+d);
+  g.gain.setValueAtTime(V*0.5,t0); g.gain.exponentialRampToValueAtTime(V,t0+d*0.25); g.gain.exponentialRampToValueAtTime(V*0.55,t0+d*0.65); g.gain.exponentialRampToValueAtTime(0.0001,t0+d);
+  tg.gain.value=0.4; am.gain.value=1; sub.gain.value=0.4;
+  trem.connect(tg); tg.connect(am.gain); o.connect(fl); o2.connect(sub); sub.connect(fl); fl.connect(am); am.connect(g); sOut(a,g,0.15);
+  [o,o2,trem].forEach(function(x){x.start(t0);x.stop(t0+d+0.05)});
+}
+/* brass: two slightly detuned saws through a filter that opens on the attack, soft 30 ms attack */
+function brass(f,t,d,v,cat){[-7,7].forEach(function(dt){vx({f:f,t:t,d:d+0.12,type:'sawtooth',det:dt,v:v,cat:cat||'r',a:0.03,lp:f*1.4,lp2:f*5.5,q:0.8,wet:0.25})})}
 /* filtered noise sweep (whoosh / sparkle) */
 function sweep(t,d,f1,f2,v,cat,wet){
   if(!cfg.settings.sound||volOf(cat||'r')<=0) return; var a=bus(); if(!a) return;
@@ -963,40 +1059,84 @@ function beatStyle(){var k=cfg.settings.beatSnd;return BEATS[k]?k:'kalimba'}
 /* old API kept: tone() and beep() now go through the bus */
 function tone(freq,dur,vol,type,delay,cat){vx({f:freq,d:dur,v:vol,type:type,t:delay,cat:cat||'m'})}
 function beep(f,d,v){vx({f:f,d:d||0.08,v:(v||0.35)*1.3,type:'triangle',cat:'m'});vx({f:f*2,d:Math.min(0.04,d||0.08),v:(v||0.35)*0.5,cat:'m'})}
+/* one instrument for everything: a kalimba voice (tine tone + short body + metallic overtone + tiny click).
+   All melodies stay in C major / C pentatonic, so every sound in the app belongs to the same family. */
+function kal(f,t,v,d,cat,wet){
+  t=t||0; v=v==null?0.6:v; d=d||0.45; cat=cat||'r';
+  vx({f:f,t:t,d:d,v:v,cat:cat,a:0.002,wet:wet});
+  vx({f:f,t:t,d:Math.min(0.14,d*0.35),type:'triangle',v:v*0.42,cat:cat,a:0.002});
+  if(f*6<16000) vx({f:f*6,t:t,d:0.045,v:v*0.17,cat:cat,a:0.001});
+  hit(t,0.012,3200,2,v*0.7,cat);
+}
+var NOTE={f6:1397,c5:523.3,d5:587.3,e5:659.3,g5:784,a5:880,b5:987.8,c6:1047,d6:1175,e6:1319,g6:1568,a6:1760,b6:1976,c7:2093,d7:2349,e7:2637,g7:3136,c8:4186};
+function arp(ns,t0,step,v,d,cat,wet){ns.forEach(function(n,i){kal(NOTE[n]||n,t0+i*step,v,d,cat,wet)})}
 var SFX={
   beat:function(over,fr,sec,style){BEATS[style||beatStyle()].f(!!over,fr,sec)},
   tick:function(){SFX.beat(false,0.5,10)},
   tickHi:function(){SFX.beat(true,1,30)},
-  prep:function(){vx({f:990,f2:880,pd:0.04,d:0.12,type:'triangle',v:0.65,cat:'m'});vx({f:1980,d:0.03,v:0.2,cat:'m'})},
-  go:function(){vx({f:1319,d:0.09,type:'triangle',v:0.7,cat:'m'});vx({f:1976,t:0.08,d:0.3,type:'triangle',v:0.75,cat:'m',wet:0.2});bell(3951,0.08,0.15,0.4,'m',0.2)},
-  goal:function(){[988,1319,1661,1976].forEach(function(f,i){bell(f,i*0.075,0.42,1.1,'m',0.3)});vx({f:494,t:0.0,d:0.5,type:'triangle',v:0.35,cat:'m',wet:0.2})},
-  rest:function(){
-    [[392,0],[392,0.24],[523.3,0.48]].forEach(function(n,i){var last=i===2,d=last?0.75:0.18;
-      [-9,9].forEach(function(dt){vx({f:n[0],t:n[1],d:d,type:'sawtooth',det:dt,v:0.3,cat:'p',lp:900,lp2:4200,q:1.2,a:0.012,wet:0.18})});
-      vx({f:n[0]/2,t:n[1],d:d,type:'sine',v:0.45,cat:'p'});
-      if(last){vx({f:659.3,t:n[1],d:d,type:'sawtooth',v:0.18,cat:'p',lp:900,lp2:3800,a:0.012,wet:0.2});bell(1047,n[1],0.3,0.9,'p',0.3)}
-    })},
-  set:function(){bell(1568,0,0.3,0.55,'r',0.2);vx({f:784,d:0.18,type:'triangle',v:0.25,cat:'r'})},
+  prep:function(){kal(NOTE.g5,0,0.6,0.28,'m')},
+  go:function(){kal(NOTE.c6,0,0.6,0.3,'m');kal(NOTE.g6,0.09,0.75,0.55,'m',0.15)},
+  goal:function(){arp(['c6','e6','g6','c7'],0,0.08,0.62,0.75,'m',0.25)},
+  /* pause over: "döp, döp, dö" - three soft, rounded notes (no click, gentle attack), the last one a fourth higher */
+  rest:function(){mar(NOTE.c6,0,0.55,0.22,'p');mar(NOTE.c6,0.2,0.55,0.22,'p');mar(NOTE.f6||1397,0.4,0.6,0.38,'p',0.12)},
+  restAlt:function(){mar(NOTE.e6,0,0.5,0.22,'p');mar(NOTE.g6,0.2,0.52,0.22,'p');mar(NOTE.c7,0.4,0.55,0.4,'p',0.12)},
+  set:function(){kal(NOTE.e6,0,0.45,0.45,'r',0.15)},
   rung:function(i,len,last){
-    var pk=(len-1)/2, idx=i<=pk?i:len-1-i, sc=[523.3,659.3,784,880,1047,1175,1319,1568], f=sc[Math.min(sc.length-1,Math.round(idx))];
-    if(last){[1047,1319,1568].forEach(function(x,j){bell(x,j*0.06,0.32,0.9,'r',0.3)});vx({f:523.3,d:0.35,type:'triangle',v:0.3,cat:'r',wet:0.2});return}
-    bell(f,0,0.32,0.5,'r',0.18);vx({f:f/2,d:0.12,type:'triangle',v:0.22,cat:'r'})},
-  done:function(){bell(1568,0,0.35,0.9,'r',0.3);bell(2093,0.09,0.4,1.2,'r',0.35);sweep(0.05,0.35,3000,9000,0.08,'r',0.3)},
-  record:function(){[1047,1175,1319,1568,1760,2093].forEach(function(f,i){bell(f,i*0.05,0.26,0.9,'r',0.35)});sweep(0,0.45,2500,10000,0.12,'r',0.35);vx({f:261.6,t:0.3,d:0.6,type:'triangle',v:0.3,cat:'r',wet:0.3})},
-  start:function(){sweep(0,0.32,400,4200,0.18,'r',0.2);[784,1047,1568].forEach(function(f,i){bell(f,0.18+i*0.07,0.3,0.9,'r',0.35)});vx({f:130,f2:60,pd:0.3,t:0.18,d:0.35,v:0.5,cat:'r'})},
-  unit:function(){SFX.done();[1319,1568,2093,2637].forEach(function(f,i){bell(f,0.25+i*0.07,0.3,1.2,'r',0.35)})},
+    var pk=(len-1)/2, idx=i<=pk?i:len-1-i, sc=['c6','d6','e6','g6','a6','c7','d7','e7'];
+    if(last){arp(['c6','e6','g6'],0,0.06,0.5,0.6,'r',0.2);kal(NOTE.c7,0.18,0.55,0.95,'r',0.3);return}
+    kal(NOTE[sc[Math.min(sc.length-1,Math.round(idx))]],0,0.55,0.5,'r',0.15)},
+  done:function(){kal(NOTE.g6,0,0.55,0.6,'r',0.2);kal(NOTE.c7,0.1,0.65,0.95,'r',0.3)},
+  record:function(){arp(['c6','d6','e6','g6','a6','c7'],0,0.055,0.45,0.7,'r',0.3);kal(NOTE.e7,0.36,0.5,1.1,'r',0.35);kal(NOTE.c6,0.36,0.35,1.1,'r',0.2)},
+  start:function(){arp(['c6','e6','g6'],0,0.07,0.5,0.6,'r',0.25);kal(NOTE.c7,0.21,0.45,0.8,'r',0.3)},
+  unit:function(){SFX.done();arp(['e6','g6','c7','e7'],0.28,0.07,0.45,0.9,'r',0.35)},
+  /* training finished: "ta-ta-ta-taaa" victory motif into a full C major chord with sparkle */
   finish:function(up){
-    sweep(0,0.38,350,5000,0.28,'r',0.15);
-    vx({f:140,f2:42,pd:0.5,t:0.36,d:0.6,type:'sine',v:0.9,cat:'r'});
-    vx({f:1200,t:0.36,d:0.03,type:'triangle',v:0.3,cat:'r'});
-    [261.6,329.6,392,523.3].forEach(function(f){[-8,8].forEach(function(dt){vx({f:f,t:0.36,d:1.9,type:'sawtooth',det:dt,v:0.1,cat:'r',lp:700,lp2:5200,q:0.9,a:0.012,wet:0.35})})});
-    [1047,1319,1568,2093].forEach(function(f,i){bell(f,0.42+i*0.08,0.34,1.5,'r',0.4)});
-    [2637,3136,3951,3136,4186].forEach(function(f,i){bell(f,0.85+i*0.11,0.11,0.9,'r',0.5)});
-    if(up){
-      sweep(1.2,0.5,800,9000,0.16,'r',0.4);
-      [349.2,440,523.3,698.5].forEach(function(f){[-8,8].forEach(function(dt){vx({f:f,t:1.55,d:2.1,type:'sawtooth',det:dt,v:0.09,cat:'r',lp:900,lp2:6000,a:0.02,wet:0.4})})});
-      [1397,1760,2093,2794,3520].forEach(function(f,i){bell(f,1.55+i*0.07,0.3,1.6,'r',0.45)});
-    }
+    kal(NOTE.g5,0,0.4,0.14);kal(NOTE.g5,0.12,0.4,0.14);kal(NOTE.g5,0.24,0.4,0.14);
+    ['c6','e6','g6','c7'].forEach(function(n){kal(NOTE[n],0.4,0.36,1.6,'r',0.35)});kal(NOTE.c5,0.4,0.4,1.6,'r',0.25);
+    vx({f:261.6,t:0.4,d:1.8,v:0.22,a:0.03,wet:0.3,cat:'r'});
+    arp(['e7','g7','c8'],0.75,0.08,0.18,0.6,'r',0.45);
+    if(up) SFX.levelUp(1.2);
+  },
+  /* flame grew: a soft, long whoosh swells up and carries into a short brass fanfare (C-E-G-C with a held chord) */
+  levelUp:function(t0){
+    t0=t0||0;
+    whoosh(t0,1.6,250,3200,0.7);
+    var T0=t0+0.75;
+    brass(NOTE.c5,T0,0.16,0.24);brass(NOTE.e5,T0+0.17,0.16,0.24);brass(NOTE.g5,T0+0.34,0.16,0.24);
+    [NOTE.c5,NOTE.e5,NOTE.g5,NOTE.c6].forEach(function(f,i){brass(f,T0+0.52,1.15,i===3?0.22:0.16)});
+    vx({f:130.8,t:T0+0.52,d:1.2,v:0.2,a:0.05,cat:'r',wet:0.2});
+  },
+  /* race variant: start lights (five plucks, then a bright "go"), an engine revving through a gear change and passing by, then an original stadium-chant on brass */
+  levelUpRace:function(t0){
+    t0=t0||0;
+    for(var i=0;i<5;i++) mar(NOTE.a5,t0+i*0.15,0.42,0.12,'r');
+    mar(NOTE.e6,t0+0.8,0.55,0.3,'r',0.15);brass(NOTE.e5,t0+0.8,0.18,0.12);
+    engine(t0+0.82,1.2,0.32);
+    var T=t0+1.75, ch=[[NOTE.c5,0,0.14],[NOTE.c5,0.17,0.14],[NOTE.e5,0.4,0.14],[NOTE.d5||587.3,0.57,0.14],[NOTE.g5,0.74,0.75]];
+    ch.forEach(function(n){brass(n[0],T+n[1],n[2],0.32)});
+    brass(NOTE.b5,T+0.74,0.75,0.16);brass(NOTE.d5,T+0.74,0.75,0.14);
+    whoosh(T+0.7,1.0,400,3000,0.25);
+  },
+  /* revving variant: "vrumm, vrumm, VRUMMM" - three blips, each higher, then a few exhaust pops */
+  levelUpRev:function(t0){
+    t0=t0||0;
+    revs(t0,2.5,[[0.2,150,0.12,0.3],[0.75,210,0.13,0.35],[1.35,330,0.2,0.55]],0.4);
+    var seed=3;function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+    for(var i=0;i<5;i++) hit(t0+1.95+rnd()*0.4,0.03,220+rnd()*240,1,1.2+rnd()*0.8,'r');
+  },
+  /* rev once, then pull away through the gears */
+  levelUpGo:function(t0){
+    t0=t0||0;
+    revs(t0,0.85,[[0.12,230,0.14,0.4]],0.4);
+    hit(t0+0.78,0.15,2600,6,0.25,'r');
+    launch(t0+0.72,1.9,0.45);
+  },
+  /* alternative: only a long whoosh with a warm hum and a few soft sparkles, no melody */
+  levelUpAlt:function(t0){
+    t0=t0||0;
+    whoosh(t0,2.2,200,2600,0.55);
+    vx({f:130.8,t:t0+0.3,d:1.9,v:0.22,a:0.6,cat:'r',wet:0.3});vx({f:196,t:t0+0.4,d:1.8,v:0.12,a:0.6,cat:'r',wet:0.3});
+    [2093,2637,3136].forEach(function(f,i){mar(f,t0+0.9+i*0.18,0.12,0.6,'r',0.5)});
   }
 };
 function buzz(p){try{if(cfg.settings.haptic!==false&&navigator.vibrate)navigator.vibrate(p)}catch(e){}}
@@ -1614,7 +1754,7 @@ function lineChart(cid,pts,unit,goal){
   var sw=n>1?iw/(n-1):iw;
   pts.forEach(function(p,i){
     var x0=Math.max(0,X(i)-sw/2), x1=Math.min(W,X(i)+sw/2);
-    tipData[cid].push({v:p.y+' '+unit,t:labelDate(parseYmd(p.k))+(p.plan?' · Einheit '+p.plan:''),lines:p.lines,x:n1(X(i))});
+    tipData[cid].push({v:p.y+' '+unit,t:labelDate(parseYmd(p.k))+(p.plan?' · '+unitName(p.plan):''),lines:p.lines,x:n1(X(i))});
     s+='<rect class="hit" data-c="'+cid+'" data-i="'+i+'" data-m="m-'+cid+'-'+i+'" x="'+n1(x0)+'" y="'+T+'" width="'+n1(x1-x0)+'" height="'+(ih+B)+'"'+(n<=30?' tabindex="0"':'')+' aria-label="'+esc(labelDate(parseYmd(p.k))+': '+p.y+' '+unit)+'"/>';
   });
   return s+'</svg>';
@@ -1769,7 +1909,7 @@ function tipShow(el){
   if(xh&&d.x!=null){xh.setAttribute('x1',d.x);xh.setAttribute('x2',d.x);xh.style.display=''}
 }
 function todayIds(){
-  var k=todayKey(), b=(days[k]&&days[k].custom)||cfg.plan[weekType()]||[], o=days[k]&&days[k].order;
+  var k=todayKey(), b=(days[k]&&days[k].custom)||(cfg.mode==='free'?[]:cfg.plan[weekType()])||[], o=days[k]&&days[k].order;
   if(!o||!o.length) return b;
   var pos=function(id){var i=o.indexOf(id);return i<0?1e6:i};
   return b.map(function(id,i){return {id:id,i:i}}).sort(function(a,c){return (pos(a.id)-pos(c.id))||(a.i-c.i)}).map(function(x){return x.id});
@@ -1986,7 +2126,7 @@ function deloadInfo(){
   if(inDeload(t)||activePause()) return null;
   var sn=cfg.settings.deloadSnooze; if(sn&&sn>=t) return null;
   if(cfg.lastDeload&&(parseYmd(t)-parseYmd(cfg.lastDeload))<21*864e5) return null;
-  var inPlan={}; ['A','B'].forEach(function(w){(cfg.plan[w]||[]).forEach(function(id){inPlan[id]=1})});
+  var inPlan={}; UNITS().forEach(function(w){(cfg.plan[w]||[]).forEach(function(id){inPlan[id]=1})});
   var st=cfg.exercises.filter(function(e){return inPlan[e.id]&&stagnating(e)});
   var long=weeksSinceDeload()>=8;
   var cnt={}, today=parseYmd(todayKey());
@@ -2078,7 +2218,7 @@ function summaryCard(k){
   });
   var m=dayMinutes(k), wt=d.plan||weekType();
   var planned=(d.custom||cfg.plan[wt]||[]).length, exDone=Object.keys(d.sets.reduce(function(a,x){a[x.e]=1;return a},{})).length;
-  var h='<section class="card pad summary"><h2>Training geschafft</h2><p class="note">Einheit '+esc(wt)+' · '+esc(labelDate(parseYmd(k)))+(d.end?' · beendet um '+clock(endOf(k)):'')+'</p>';
+  var h='<section class="card pad summary"><h2>Training geschafft</h2><p class="note">'+esc(unitName(wt))+' · '+esc(labelDate(parseYmd(k)))+(d.end?' · beendet um '+clock(endOf(k)):'')+'</p>';
   h+='<div class="tiles three">'+tile('Dauer',m?String(m):'–',m?'Minuten':'nicht ermittelbar')+tile('Sätze',String(nSets),exDone+' von '+planned+' Übungen')+tile('Wiederholungen',String(reps),hold?('Hold-Zeit '+fmtDur(hold)):'')+'</div>';
   order.forEach(function(g){
     var ss=groups[g], ex=getEx(ss[0].e);
@@ -2108,7 +2248,7 @@ function weekStrip(noFlame){
 /* ---------- guided tour: dims the screen, highlights one control, explains it ---------- */
 var tourI=null, tourPreview=false;
 var TOUR=[
- {v:'start',sel:'.st-go',t:'Training starten',x:'Hier steht, ob heute A oder B dran ist. Ein Tipp startet das Training und zeigt deine Übungen.'},
+ {v:'start',sel:'.st-go',t:'Training starten',x:'Hier siehst du, was heute dran ist. Ein Tipp startet das Training und zeigt deine Übungen.'},
  {v:'start',sel:'.st-row',t:'Deine Serie',x:'Schaffst du dein Wochenziel, wächst die Flamme. Je länger die Serie, desto wilder wird sie.'},
  {v:'start',sel:'.st-sub .linkbtn',t:'Heute anpassen',x:'A und B tauschen, einen leichten Tag einlegen oder pausieren, wenn du krank bist.'},
  {v:'full',sel:'.hero .ring',t:'Fortschritt heute',x:'Der Ring füllt sich mit jeder fertigen Übung.'},
@@ -2151,6 +2291,44 @@ function tourPlace(){
   var cx=Math.max(28,Math.min(innerWidth-28,r.left+r.width/2));bub.style.setProperty('--ax',(cx-16)+'px');
 }
 window.addEventListener('resize',function(){if(tourI!=null)tourPlace()});
+/* free mode: before training, pick today's exercises from the pool; the app preselects what is due */
+var freePick=null, freeDay='';
+function daysSince(id){var ls=lastSet(id);if(!ls)return null;return Math.round((parseYmd(todayKey())-parseYmd(ymd(new Date(ls.t))))/864e5)}
+function freeSuggest(){
+  var pool=(cfg.plan.F||[]).map(getEx).filter(Boolean), cap=budget()*60*0.85, sec=0, out=[], grp={};
+  var sc=pool.map(function(e){var d=daysSince(e.id), v=d==null?6:Math.min(d,7);
+    if(d!=null&&d<2&&!e.skill&&grpOf(e)!=='Rumpf') v-=5;   /* about 48 h for strength work on the same muscles */
+    if(e.skill) v+=1.5; if(coreIds().indexOf(e.id)>=0) v+=1;
+    return {e:e,v:v}});
+  for(var r=0;r<8;r++){
+    var best=null,bv=-99;
+    sc.forEach(function(c){if(out.indexOf(c.e)>=0)return;var t=estSec(c.e);if(sec+t>cap&&out.length)return;var g=grpOf(c.e),v=c.v+(grp[g]?-1.5*grp[g]:1.5);if(v>bv){bv=v;best=c}});
+    if(!best||best.v<=0&&out.length>=3) break;
+    out.push(best.e);sec+=estSec(best.e);grp[grpOf(best.e)]=(grp[grpOf(best.e)]||0)+1;
+    if(out.length>=6) break;
+  }
+  var ORD={Pull:1,Push:1,Beine:2,Rumpf:3};
+  out.sort(function(a,b){return ((a.skill?0:ORD[grpOf(a)]||4)-(b.skill?0:ORD[grpOf(b)]||4))});
+  return out.map(function(e){return e.id});
+}
+function freeStart(fk){
+  if(freeDay!==fk||!freePick){freeDay=fk;freePick=freeSuggest()}
+  var pool=(cfg.plan.F||[]).map(getEx).filter(Boolean), sel=freePick;
+  var secs=sel.map(getEx).filter(Boolean).reduce(function(a,e){return a+estSec(e)},0), min=Math.max(5,Math.round(secs/60/5)*5);
+  var F=flameNow(), goal=cfg.settings.goal||3, sw=streakWeeks(goal), m=monday(new Date()), wk=0;
+  for(var i=0;i<7;i++){var k=ymd(new Date(m.getFullYear(),m.getMonth(),m.getDate()+i));if(days[k]&&(days[k].sets||[]).length)wk++}
+  var h='<section class="start free" aria-label="Heutiges Training">'+
+    '<p class="st-k">Freies Training</p>'+
+    '<div class="st-mid fr-mid"><span class="st-t">Was trainierst du heute?</span><span class="st-m">Vorschlag der App: was am längsten her ist und erholt ist. Tippe zum Ändern.</span></div>'+
+    '<div class="fr-list" role="group" aria-label="Übungen für heute">'+(pool.length?pool.map(function(e){
+      var on=sel.indexOf(e.id)>=0, d=daysSince(e.id), last=d==null?'noch nie':d===0?'heute':d===1?'gestern':'vor '+d+' Tagen', warn=d!=null&&d<2&&!e.skill&&grpOf(e)!=='Rumpf';
+      return '<button class="fr-opt'+(on?' on':'')+'" data-act="frpick" data-id="'+e.id+'" aria-pressed="'+on+'"><span><b>'+esc(e.name)+'</b><small>'+esc(subText(e))+'</small></span><em class="'+(warn?'warn':'')+'">'+last+'</em><i aria-hidden="true">✓</i></button>'}).join(''):'<p class="st-m">Noch keine Übungen. Lege sie unter „Plan“ an.</p>')+'</div>'+
+    '<button class="st-go" data-act="frstart"'+(sel.length?'':' disabled')+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>'+(sel.length?'Training starten · '+sel.length+(sel.length===1?' Übung':' Übungen')+' · ca. '+min+' min':'Wähle mindestens eine Übung')+'</button>'+
+    '</section>';
+  h+='<p class="st-row">'+((sw>0||F.l>0)?'<button class="flm" data-act="tab" data-v="stats" aria-label="Flamme ansehen">'+flameSvg(sw,24,F.l,F.rings)+'</button><span><b>'+sw+'</b>'+(sw===1?' Woche':' Wochen')+' in Serie</span><span aria-hidden="true">·</span>':'')+'<span>diese Woche <b>'+wk+'</b>/'+goal+'</span></p>';
+  h+='<div class="st-sub"><button class="linkbtn" data-act="frsug">Vorschlag wiederherstellen</button><button class="linkbtn" data-act="tab" data-v="plan">Übungen verwalten</button></div>';
+  return h;
+}
 /* start screen: before the first set of the day only which unit is due, and one button */
 function startScreen(wt,list,fk){
   var pm=dayKeys().filter(function(k){return days[k].plan===wt&&k<fk}).slice(-6).map(dayMinutes).filter(Boolean);
@@ -2192,6 +2370,7 @@ function viewToday(){
     return h;
   }
   if(summaryOpen&&days[fk]&&(days[fk].sets||[]).length) h+=summaryCard(fk);
+  if(cfg.mode==='free'&&!list.length&&!(days[fk]&&(days[fk].sets||[]).length)&&!editToday&&!activePause()&&!T&&!tourPreview) return h+freeStart(fk);
   if(list.length&&!(days[fk]&&(days[fk].sets||[]).length)&&cfg.startedDay!==fk&&!editToday&&!activePause()&&!T&&!tourPreview) return h+startScreen(wt,list,fk);
   if(!autoOpened){
     autoOpened=true;
@@ -2206,7 +2385,7 @@ function viewToday(){
   var C=2*Math.PI*24;
   var r0=fxS.ring==null?0:fxS.ring, rFresh=fxS.ring!=null&&fxS.ring<1&&frac>=1;
   h+='<section class="hero"><div class="hrow"><div class="ring'+(frac<=0?' zero':'')+(frac>=1?' full':'')+(rFresh?' fresh':'')+'" role="img" aria-label="'+nDone+' von '+list.length+' Übungen fertig"><svg viewBox="0 0 56 56" aria-hidden="true"><defs><linearGradient id="rgG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:#5FE8D9"/><stop offset="1" style="stop-color:var(--accent2)"/></linearGradient></defs><circle cx="28" cy="28" r="24" class="rb"/><circle cx="28" cy="28" r="24" class="rf" data-fxo="'+(C*(1-frac)).toFixed(1)+'" style="stroke-dasharray:'+C.toFixed(1)+';stroke-dashoffset:'+(C*(1-r0)).toFixed(1)+'"/><g class="rtip" data-fxr="'+(frac*360).toFixed(1)+'" style="transform:rotate('+(r0*360).toFixed(1)+'deg)"><circle cx="52" cy="28" r="4"/></g></svg><span><b>'+nDone+'</b>/'+list.length+'</span></div>'+
-     '<div class="hm"><b>Einheit '+esc(wt)+'</b><span>'+list.length+(list.length===1?' Übung':' Übungen')+(avgM?' · ca. '+avgM+' min':'')+'</span></div>'+
+     '<div class="hm"><b>'+esc(unitName(wt))+'</b><span>'+list.length+(list.length===1?' Übung':' Übungen')+(avgM?' · ca. '+avgM+' min':'')+'</span></div>'+
      (function(){var F=flameNow();return (sw>0||F.l>0)?'<button class="flm" data-act="tab" data-v="stats" aria-label="'+sw+(sw===1?' Woche':' Wochen')+' in Serie">'+flameSvg(sw,34,F.l,F.rings)+'<b>'+sw+'</b></button>':''})()+'</div>'+
      (function(){
         var ap=activePause();
@@ -2217,7 +2396,7 @@ function viewToday(){
      })()+weekStrip(true)+'</section>';
   fxS.ringNext=frac; if(rFresh) fxS.unitDone=true;
   if(list.length&&frac>0&&frac<1) h+='<div class="tbar" aria-hidden="true"><i style="width:'+Math.round(frac*100)+'%"></i></div>';
-  var tdk0=ymd(new Date()), cust=!!(days[tdk0]&&days[tdk0].custom);
+  var tdk0=ymd(new Date()), cust=cfg.mode!=='free'&&!!(days[tdk0]&&days[tdk0].custom);
   h+='<div class="row" style="margin:0 0 12px"><button class="btn small" data-act="tedit" aria-expanded="'+editToday+'">'+(editToday?'Fertig':'Heute anpassen')+'</button>'+(cust?'<span class="note">Heute angepasst</span>':'')+'</div>';
   if(editToday){
     var ids0=todayIds(), tov=(days[tdk0]&&days[tdk0].setsOv)||{};
@@ -2229,7 +2408,7 @@ function viewToday(){
       '<div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-start;margin-bottom:0">'+
       (inDeload(fk)?'':'<button class="btn small" data-act="deloadgo">Leichte Woche (7 Tage)</button>')+
       (ap0?'':'<button class="btn small" data-act="pausego">Krank – Pause eintragen</button>')+'</div></section>'+
-      '<section class="card pad todayedit"><h2>Übungen für heute</h2><div class="row" style="margin-bottom:12px"><span>Einheit</span><div class="seg" role="group" aria-label="Heutige Einheit">'+['A','B'].map(function(w){return '<button aria-pressed="'+(wt===w)+'" data-act="wk" data-v="'+w+'">'+w+'</button>'}).join('')+'</div></div><p class="note" style="margin-bottom:8px">Gilt nur für heute, dein Plan bleibt. Reihenfolge: ▲ ▼ oder im Training eine Übung lange drücken und ziehen.</p>';
+      '<section class="card pad todayedit"><h2>Übungen für heute</h2>'+(cfg.mode==='free'?'':'<div class="row" style="margin-bottom:12px"><span>Einheit</span><div class="seg" role="group" aria-label="Heutige Einheit">'+['A','B'].map(function(w){return '<button aria-pressed="'+(wt===w)+'" data-act="wk" data-v="'+w+'">'+w+'</button>'}).join('')+'</div></div>')+'<p class="note" style="margin-bottom:8px">Gilt nur für heute, dein Plan bleibt. Reihenfolge: ▲ ▼ oder im Training eine Übung lange drücken und ziehen.</p>';
     ids0.map(getEx).filter(Boolean).forEach(function(e){
       var n=plannedToday(e);
       h+='<div class="trow"><span class="tn">'+esc(e.name)+'</span><div class="row" style="gap:8px">'+
@@ -2353,7 +2532,7 @@ function viewHistory(){
   if(histFil!=='all'&&histFil!=='A'&&histFil!=='B'&&!getEx(histFil)) histFil='all';
   /* filter chips */
   var fx=getEx(histFil);
-  h+='<div class="hfil" role="group" aria-label="Filter">'+[['all','Alle'],['A','A'],['B','B']].map(function(o){return '<button aria-pressed="'+(histFil===o[0])+'" data-act="hfil" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+
+  h+='<div class="hfil" role="group" aria-label="Filter">'+[['all','Alle']].concat(cfg.mode==='free'?[]:[['A','A'],['B','B']]).map(function(o){return '<button aria-pressed="'+(histFil===o[0])+'" data-act="hfil" data-v="'+o[0]+'">'+o[1]+'</button>'}).join('')+
      '<button class="hpick" aria-pressed="'+!!fx+'" aria-expanded="'+histPick+'" data-act="hpick"><span>'+(fx?esc(fx.name):'Übung wählen')+'</span><i>'+(histPick?'▴':'▾')+'</i></button></div>';
   if(histPick){
     h+='<section class="card pad hpanel"><p class="note" style="margin:0 0 10px">Veränderung der letzten 4 Wochen auf der aktuellen Stufe</p>';
@@ -2464,7 +2643,7 @@ function editForm(e){
 }
 var formType=null;
 function gearBtn(){return '<button class="themebtn gearbtn" data-act="tab" data-v="settings" aria-label="Einstellungen">'+GEAR+'</button>'}
-var APPVER='23.11.2026 (Version 23)';
+var APPVER='25.11.2026 (Version 28)';
 function logicHtml(){
   var st=cfg.settings, cyc=st.cycle||6, g=st.goal||3;
   function sec(t,items){return '<h4>'+t+'</h4><ul>'+items.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
@@ -2524,7 +2703,7 @@ function viewSettings(){
      '<div style="margin-top:12px"><span class="note">Taktton beim Hold (tippen zum Anhören)</span><div class="seg wrapseg" role="group" aria-label="Taktton">'+Object.keys(BEATS).map(function(k){return '<button aria-pressed="'+(beatStyle()===k)+'" data-act="beatsnd" data-v="'+k+'">'+BEATS[k].n+'</button>'}).join('')+'</div>'+(beatStyle()==='voice'?'<p class="note" style="margin-top:6px">Sprache sagt die Sekunden an. Sie nutzt die Stimme des Handys, kommt etwas verzögert und lässt sich nicht über 100 % verstärken.</p>':'')+'</div>'+
      '<div class="vol"><label for="vol-p">Lautstärke Pausenton <b id="vl-p">'+Math.round(volOf('p')*100)+' %</b></label><input type="range" id="vol-p" class="volr" data-c="p" min="20" max="300" step="10" value="'+Math.round(volOf('p')*100)+'"></div>'+
      '<div class="vol"><label for="vol-r">Lautstärke Belohnungen <b id="vl-r">'+Math.round(volOf('r')*100)+' %</b></label><input type="range" id="vol-r" class="volr" data-c="r" min="0" max="300" step="10" value="'+Math.round(volOf('r')*100)+'"></div>'+
-     '<div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap;justify-content:flex-start"><span class="note" style="width:100%">Belohnungen: Satz, Leiterstufe, Übung fertig, Rekord und Abschluss. Anhören:</span>'+[['tick','Metronom'],['goal','Hold-Ziel'],['rest','Pausenende'],['rung','Leiterstufe'],['record','Rekord'],['finish','Abschluss']].map(function(x){return '<button class="btn small" data-act="sfxtest" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'+
+     '<div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap;justify-content:flex-start"><span class="note" style="width:100%">Belohnungen: Satz, Leiterstufe, Übung fertig, Rekord und Abschluss. Anhören:</span>'+[['tick','Metronom'],['goal','Hold-Ziel'],['rest','Pausenende'],['rung','Leiterstufe'],['record','Rekord'],['finish','Abschluss'],['levelUp','Flamme wächst']].map(function(x){return '<button class="btn small" data-act="sfxtest" data-v="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div>'+
      '<div class="row" style="margin-top:10px"><span>Vibration <button class="btn small" data-act="vtest" style="margin-left:6px">Testen</button></span><div class="seg" role="group" aria-label="Vibration"><button aria-pressed="'+(cfg.settings.haptic!==false)+'" data-act="haptic" data-v="1">An</button><button aria-pressed="'+(cfg.settings.haptic===false)+'" data-act="haptic" data-v="0">Aus</button></div></div>'+
      '<div class="row" style="margin-top:10px"><span>Nach der Pause gleich den nächsten Hold starten</span><div class="seg" role="group" aria-label="Automatischer Hold"><button aria-pressed="'+(cfg.settings.autoHold!==false)+'" data-act="autohold" data-v="1">An</button><button aria-pressed="'+(cfg.settings.autoHold===false)+'" data-act="autohold" data-v="0">Aus</button></div></div>'+
      '<div class="row" style="margin-top:10px"><span>Vorlauf vor dem Hold</span><div class="seg" role="group" aria-label="Vorlauf">'+
@@ -2548,7 +2727,7 @@ function viewSettings(){
   });
   var st=cfg.settings, thLab={light:'Hell',dark:'Dunkel',auto:'Automatisch'}[st.theme||'light'];
   var G=[
-    ['goals','Ziele, Ausstattung, Tour',(cfg.libGoals||[]).map(function(g){return (LIBGOALS.filter(function(x){return x[0]===g})[0]||[0,''])[1]}).filter(Boolean).join(', ')||'Noch nicht eingerichtet',[]],
+    ['goals','Ziele, Trainingsart, Tour',(cfg.libGoals||[]).map(function(g){return (LIBGOALS.filter(function(x){return x[0]===g})[0]||[0,''])[1]}).filter(Boolean).join(', ')||'Noch nicht eingerichtet',[]],
     ['train','Training',(st.goal||3)+' pro Woche · '+budget()+' min · '+(st.auto?'Automatisch steigern':'Nur Vorschläge'),['Trainings pro Woche','Zeit pro Einheit','Krafttests','Progression']],
     ['sound','Ton und Vibration',(st.sound?'Ton an':'Ton aus')+' · Vibration '+(st.haptic!==false?'an':'aus'),['Ton und Vorlauf']],
     ['design','Design',thLab,['Design']],
@@ -2561,7 +2740,7 @@ function viewSettings(){
     h+='<div class="sgrp"><button class="grp" data-act="sset" data-v="'+g[0]+'" aria-expanded="'+op+'"><span class="gn"><b>'+g[1]+'</b><small>'+esc(g[2])+'</small></span><i>'+(op?'▴':'▾')+'</i></button>';
     if(op){
       h+='<div class="sbody">';
-      if(g[0]==='goals') h+='<p class="note">Ziele, Ausstattung und Stand neu angeben. Am Ende entscheidest du, ob die App daraus einen neuen Plan macht oder nur die Ziele für ihre Vorschläge übernimmt. Dein Verlauf bleibt erhalten.</p><div class="row" style="margin-top:10px;gap:8px;justify-content:flex-start;flex-wrap:wrap"><button class="btn" data-act="obstart">Neu einrichten</button><button class="btn" data-act="tourstart">Tour durch die App</button></div>';
+      if(g[0]==='goals') h+='<p class="note">Ziele, Ausstattung und Stand neu angeben. Am Ende entscheidest du, ob die App daraus einen neuen Plan macht oder nur die Ziele für ihre Vorschläge übernimmt. Dein Verlauf bleibt erhalten.</p><div class="row" style="margin-top:12px"><span>Trainingsart</span><div class="seg" role="group" aria-label="Trainingsart"><button aria-pressed="'+(cfg.mode!=='free')+'" data-act="setmode" data-v="ab">Plan A/B</button><button aria-pressed="'+(cfg.mode==='free')+'" data-act="setmode" data-v="free">Frei</button></div></div><p class="note">Frei: keine festen Einheiten. Du wählst vor jedem Training aus deinen Übungen, die App schlägt vor, was dran ist, und steigert jede Übung wie gewohnt.</p><div class="row" style="margin-top:10px;gap:8px;justify-content:flex-start;flex-wrap:wrap"><button class="btn" data-act="obstart">Neu einrichten</button><button class="btn" data-act="tourstart">Tour durch die App</button></div>';
       g[3].forEach(function(t){ if(byT[t]!=null) h+=(g[3].length>1?'<h3 class="subh">'+t+'</h3>':'')+byT[t]; });
       h+='</div>';
     }
@@ -2679,7 +2858,7 @@ function libItems(L,mine){
       h+='<div class="libbody">'+(x.why&&!mine?'<p class="libwhy">'+esc(x.why)+'</p>':'')+'<p class="note" style="margin:0 0 8px">'+esc(x.cat)+' · '+({time:'Hold',reps:'Wdh.',ladder:'Leiter'}[x.type])+' · '+esc(x.note)+'</p>';
       if(x.ladder.length>1) h+='<p class="lt">Startstufe wählen</p><ol class="stages">'+x.ladder.map(function(st,i){return '<li><button data-act="libstart" data-v="'+i+'" aria-pressed="'+(libStart===i)+'"><span>'+(i+1)+'</span>'+esc(st)+'</button></li>'}).join('')+'</ol>';
       h+='<p class="note" style="margin:6px 0 10px">'+(x.type==='time'?'Ziel startet bei '+x.tmin+' s und steigt bis '+x.tmax+' s, dann schlägt die App die nächste Stufe vor.':x.type==='reps'?'Ziel '+x.rmin+'–'+x.rmax+' Wiederholungen in '+x.sets+' Sätzen. Schaffst du überall '+x.rmax+', schlägt die App die nächste Stufe vor.':'Leiter mit automatischer Steigerung von Spitze und Serien.')+'</p>';
-      h+='<p class="lt">Zu Einheit hinzufügen</p><div class="seg multi" role="group" aria-label="Einheiten">'+['A','B'].map(function(w){return '<button data-act="libunit" data-v="'+w+'" aria-pressed="'+!!libUnits[w]+'">Einheit '+w+'</button>'}).join('')+'</div>';
+      h+='<p class="lt">'+(cfg.mode==='free'?'Zu deinen Übungen hinzufügen':'Zu Einheit hinzufügen')+'</p><div class="seg multi" role="group" aria-label="Einheiten">'+UNITS().map(function(w){return '<button data-act="libunit" data-v="'+w+'" aria-pressed="'+!!libUnits[w]+'">Einheit '+w+'</button>'}).join('')+'</div>';
       h+='<div class="row" style="margin-top:12px"><button class="btn primary" data-act="libadd" data-v="'+x.id+'">'+(have?'Trotzdem hinzufügen':'Hinzufügen')+'</button></div></div>';
     }
     return h+'</div>';
@@ -2703,7 +2882,7 @@ function libAdd(id){
   else if(L.type==='reps'){e.rmin=L.rmin;e.rmax=L.rmax;e.sets=L.sets}
   else {e.peak=L.peak;e.series=L.series}
   cfg.exercises.push(e);
-  ['A','B'].forEach(function(w){if(libUnits[w]){cfg.plan[w]=cfg.plan[w]||[];cfg.plan[w].push(nid)}});
+  UNITS().forEach(function(w){if(libUnits[w]){cfg.plan[w]=cfg.plan[w]||[];cfg.plan[w].push(nid)}});
   saveCfg();
   return e;
 }
@@ -2713,7 +2892,7 @@ var GOALKEY={hs:['hstand','hspu','wallwalk','hollow','wristpu'],fl:['flever','pu
   legs:['bulg','pistol','squat','nordic','calf','bridge'],core:['hollow','legr','plank','sideplank','lsit'],health:['facepull','bridge','sideplank','scappush','squat','invrow','calf']};
 var GBASE={pushup:.6,invrow:.6,squat:.6,hollow:.5,bridge:.4,plank:.3};
 var obStep=null, ob=null;
-function obNew(rerun){return {rerun:!!rerun,goals:(rerun&&cfg.libGoals)?cfg.libGoals.slice():[],eq:(rerun&&cfg.equip)?cfg.equip.slice():[],pull:(cfg.level||{}).pull,push:(cfg.level||{}).push,per:cfg.settings.goal||3,min:budget()}}
+function obNew(rerun){return {mode:cfg.mode==='free'?'free':'ab',rerun:!!rerun,goals:(rerun&&cfg.libGoals)?cfg.libGoals.slice():[],eq:(rerun&&cfg.equip)?cfg.equip.slice():[],pull:(cfg.level||{}).pull,push:(cfg.level||{}).push,per:cfg.settings.goal||3,min:budget()}}
 function mkLibEx(L,level,o){
   var e={id:L.id,lib:L.id,name:L.name,type:L.type,ladder:L.ladder.slice(),level:Math.max(0,Math.min(level||0,L.ladder.length-1)),rest:L.rest,note:L.note,grp:libGrp(L),stageSince:todayKey()};
   if(L.rcap) e.rcap=L.rcap; if(L.per) e.per=true;
@@ -2765,7 +2944,7 @@ function genPlan(o){
   return {ex:ex,plan:plan,core:core,min:{A:Math.round(sec.A/60),B:Math.round(sec.B/60)}};
 }
 function obApply(keepPlan){
-  cfg.libGoals=ob.goals.slice(); cfg.equip=ob.eq.slice(); cfg.level={pull:ob.pull,push:ob.push};
+  cfg.libGoals=ob.goals.slice(); cfg.equip=ob.eq.slice(); cfg.level={pull:ob.pull,push:ob.push}; cfg.mode=ob.mode==='free'?'free':'ab';
   cfg.settings.goal=ob.per; cfg.settings.budget=ob.min;
   if(!keepPlan){
     var P=genPlan(ob), map={};
@@ -2775,7 +2954,7 @@ function obApply(keepPlan){
       cfg.exercises=cfg.exercises.concat(Object.keys(P.ex).filter(function(k){return !map[k]&&!getEx(k)}).map(function(k){return P.ex[k]}));
     } else cfg.exercises=Object.keys(P.ex).map(function(k){return P.ex[k]});
     var mp=function(id){return map[id]||id};
-    cfg.plan={A:P.plan.A.map(mp),B:P.plan.B.map(mp)}; cfg.core=P.core.map(mp); delete cfg.keep;
+    cfg.plan={A:P.plan.A.map(mp),B:P.plan.B.map(mp)}; cfg.plan.F=uniqA(cfg.plan.A.concat(cfg.plan.B)); cfg.core=P.core.map(mp); delete cfg.keep;
   }
   else {
     /* plan stays, but which exercises are protected follows the new goals */
@@ -2813,17 +2992,22 @@ function viewOnboard(){
   } else if(st===4){
     h+='<h2 class="ob-h">Wie oft und wie lange?</h2><p class="ob-p">Lieber realistisch als ehrgeizig. Deine Flamme wächst, wenn du dein Wochenziel schaffst.</p>'+
       '<p class="ob-q">Trainings pro Woche</p><div class="ob-seg">'+[2,3,4].map(function(n){return '<button class="'+(ob.per===n?'on':'')+'" data-act="obper" data-v="'+n+'" aria-pressed="'+(ob.per===n)+'">'+n+'×</button>'}).join('')+'</div>'+
+      '<p class="ob-q">Wie trainierst du?</p><div class="ob-seg">'+[['ab','Fester Plan A/B'],['free','Frei, jedes Mal neu']].map(function(x){return '<button class="'+(ob.mode===x[0]?'on':'')+'" data-act="obmode" data-v="'+x[0]+'" aria-pressed="'+(ob.mode===x[0])+'">'+x[1]+'</button>'}).join('')+'</div>'+
       '<p class="ob-q">Zeit pro Training</p><div class="ob-seg">'+[30,45,60,75].map(function(n){return '<button class="'+(ob.min===n?'on':'')+'" data-act="obmin" data-v="'+n+'" aria-pressed="'+(ob.min===n)+'">'+n+' min</button>'}).join('')+'</div>';
   } else if(st===5){
     var P=genPlan(ob);
-    h+='<h2 class="ob-h">Dein Startplan</h2><p class="ob-p">Zwei Trainings, A und B, im Wechsel. Die App steigert automatisch und macht alle paar Wochen Vorschläge, die du annimmst oder ablehnst.</p>';
-    ['A','B'].forEach(function(w){
+    if(ob.mode==='free'){
+      var pool=uniqA(P.plan.A.concat(P.plan.B));
+      h+='<h2 class="ob-h">Deine Übungen</h2><p class="ob-p">Vor jedem Training wählst du daraus aus. Die App schlägt vor, was am längsten her ist und erholt ist, und steigert jede Übung automatisch.</p>'+
+        '<div class="ob-unit"><div class="ob-uh"><b>Freies Training</b><span>'+pool.length+' Übungen</span></div><ol>'+pool.map(function(id){var e=P.ex[id];return '<li><b>'+esc(e.name)+'</b><small>'+esc(subText(e))+'</small></li>'}).join('')+'</ol></div>';
+    } else h+='<h2 class="ob-h">Dein Startplan</h2><p class="ob-p">Zwei Trainings, A und B, im Wechsel. Die App steigert automatisch und macht alle paar Wochen Vorschläge, die du annimmst oder ablehnst.</p>';
+    (ob.mode==='free'?[]:['A','B']).forEach(function(w){
       h+='<div class="ob-unit"><div class="ob-uh"><b>Training '+w+'</b><span>ca. '+P.min[w]+' min</span></div><ol>'+P.plan[w].map(function(id){var e=P.ex[id];return '<li><b>'+esc(e.name)+'</b><small>'+esc(subText(e))+'</small></li>'}).join('')+'</ol></div>';
     });
     h+='<p class="ob-p small">Alles lässt sich später unter „Plan“ ändern. Weitere Übungen findest du dort in der Übungsbibliothek.</p>';
   } else if(st===6){
     h+='<h2 class="ob-h">So läuft ein Training</h2><div class="ob-steps">'+
-      [['Training starten','Unter „Heute“ steht, ob A oder B dran ist. Ein Tipp auf „Training starten“ zeigt deine Übungen.'],
+      [(ob.mode==='free'?['Übungen wählen','Unter „Heute“ wählst du, was du trainierst. Die App hat schon vorausgewählt, was dran ist.']:['Training starten','Unter „Heute“ steht, ob A oder B dran ist. Ein Tipp auf „Training starten“ zeigt deine Übungen.']),
        ['Sätze eintragen','Übung öffnen, dann Hold mit Timer starten oder Wiederholungen antippen. Bei Leitern tippst du jede Stufe.'],
        ['Ehrlich bewerten','Nach einer Leiter fragt die App kurz, wie schwer es war. Bei Schmerzen tippst du „Schmerz“, dann wird es leichter.'],
        ['Die App lernt mit','Nach jedem Training passt sie Ziele an. Alles wird angezeigt und lässt sich rückgängig machen.']].map(function(x,i){return '<div class="ob-step"><i>'+(i+1)+'</i><span><b>'+x[0]+'</b><small>'+x[1]+'</small></span></div>'}).join('')+'</div>';
@@ -2851,7 +3035,7 @@ function libOf(e){
   if(LIBMAP[e.id]) return libById(LIBMAP[e.id]);
   var n=e.name.toLowerCase(); return LIB.filter(function(x){return x.name.toLowerCase()===n})[0]||null;
 }
-function planIds(){var o=[];['A','B'].forEach(function(w){(cfg.plan[w]||[]).forEach(function(id){if(o.indexOf(id)<0)o.push(id)})});return o}
+function planIds(){var o=[];UNITS().forEach(function(w){(cfg.plan[w]||[]).forEach(function(id){if(o.indexOf(id)<0)o.push(id)})});return o}
 function planLib(){return planIds().map(getEx).filter(Boolean).map(function(e){var L=libOf(e);return L?L.id:null}).filter(Boolean)}
 function coreIds(){return cfg.keep||(cfg.core||['hs','fl','pu','dip']).filter(function(id){return getEx(id)})}
 function learnRej(key){return ((cfg.learn||{}).rej||{})[key]}
@@ -2914,8 +3098,8 @@ function reviewSugs(){
   var out=[], have=planLib(), ids=planIds(), core=coreIds(), goals=libGoalsSel(), B=budget();
   var free=function(id){var L0=libById(id);return have.indexOf(id)<0&&!learnRej('add:'+id)&&!learnRej('swapin:'+id)&&(!L0||eqOk(L0))};
   var used=[];
-  /* 0. units over budget: shrink first (ladder cap, then remove) */
-  ['A','B'].forEach(function(w){
+  /* 0. units over budget: shrink first (ladder cap, then remove). Not in free mode: there the pool is not one session */
+  (cfg.mode==='free'?[]:['A','B']).forEach(function(w){
     var m=unitEst(w); if(m<=B*1.1) return;
     var lad=(cfg.plan[w]||[]).map(getEx).filter(function(e){return e&&e.type==='ladder'});
     var big=lad.filter(function(e){var per=sumR(e.peak||3,e.base||1);return (e.series||3)*per>50&&!learnRej('cap:'+e.id)})[0];
@@ -2928,16 +3112,17 @@ function reviewSugs(){
     if(wk&&!learnRej('rm:'+w+':'+wk.id)){out.push({type:'rm',key:'rm:'+w+':'+wk.id,old:wk.id,unit:w,title:wk.name+' aus Einheit '+w+' nehmen',text:'Einheit '+w+' dauert geschätzt '+m+' min, dein Budget sind '+B+' min. '+wk.name+' trägt am wenigsten zu deinen Zielen bei. Die Übung bleibt gespeichert und kann jederzeit zurück.'});used.push(wk.id)}
   });
   /* place a library exercise: add if time and region allow, otherwise swap for the weakest exercise */
-  var pend={A:[],B:[]}, pendG={A:{},B:{}};
+  var pend={A:[],B:[],F:[]}, pendG={A:{},B:{},F:{}}, FREE=cfg.mode==='free';
   function place(lid,pref,title,text){
     var A=libById(lid), ax=libAsEx(A), g=libGrp(A), best=null;
-    [pref||'A',pref==='B'?'A':'B'].forEach(function(w){
+    (FREE?['F']:[pref||'A',pref==='B'?'A':'B']).forEach(function(w){
       if(best) return;
+      if(FREE){if(grpCount(w,g)+(pendG[w][g]||0)<(GRPMAX[g]||3)*2) best={type:'add',unit:w};return}
       if(unitEst(w,pend[w].concat([ax]))<=B&&grpCount(w,g)+(pendG[w][g]||0)<(GRPMAX[g]||3)) best={type:'add',unit:w};
     });
     if(best&&out.filter(function(o){return o.type==='add'}).length>=2) return;
-    if(best){var bw=best.unit;pend[bw].push(ax);pendG[bw][g]=(pendG[bw][g]||0)+1;out.push({type:'add',key:'add:'+lid,lib:lid,unit:bw,title:title||A.name+' dazunehmen',text:text+' Passt in Einheit '+bw+' (dann ca. '+unitEst(bw,pend[bw])+' von '+B+' min).'});return}
-    var cands=['A','B'].map(function(w){var wk=weakestIn(w,g,used);if(!wk||learnRej('swap:'+wk.id+':'+lid))return null;
+    if(best){var bw=best.unit;pend[bw].push(ax);pendG[bw][g]=(pendG[bw][g]||0)+1;out.push({type:'add',key:'add:'+lid,lib:lid,unit:bw,title:title||A.name+' dazunehmen',text:text+(FREE?' Kommt zu deinen Übungen, du wählst sie aus, wenn sie passt.':' Passt in Einheit '+bw+' (dann ca. '+unitEst(bw,pend[bw])+' von '+B+' min).')});return}
+    var cands=UNITS().map(function(w){var wk=weakestIn(w,g,used);if(!wk||learnRej('swap:'+wk.id+':'+lid))return null;
       /* never swap away the only exercise of another body region in that unit */
       if(grpOf(wk)!==g&&grpCount(w,grpOf(wk))<2) return null;
       return {w:w,e:wk}}).filter(Boolean)
@@ -3002,12 +3187,12 @@ function viewReview(){
   var h='<header class="top"><div style="display:flex;align-items:center;min-width:0"><button class="back" data-act="revclose" aria-label="Zurück zum Plan">‹</button><h1>Plan prüfen</h1></div>'+gearBtn()+'</header>';
   var S=reviewSugs();
   h+='<p class="note" style="margin:-4px 2px 12px">Alle '+(cfg.settings.cycle||6)+' Wochen schaut die App auf deinen Plan: Stillstand, Beschwerden, Lücken für deine Ziele und dein Zeitbudget. Neue Übungen kommen nur dazu, wenn Zeit und Belastung es erlauben, sonst als Tausch. Du entscheidest bei jedem Vorschlag.</p>'+
-    '<div class="tiles budget">'+['A','B'].map(function(w){var m=unitEst(w),B=budget();return '<div class="tile"><span class="tl">Einheit '+w+'</span><b class="'+(m>B*1.1?'over':'')+'">ca. '+m+' min</b><span class="ts">Budget '+B+' min</span></div>'}).join('')+'</div>';
+    (cfg.mode==='free'?'<div>':'<div class="tiles budget">')+(cfg.mode==='free'?[]:['A','B']).map(function(w){var m=unitEst(w),B=budget();return '<div class="tile"><span class="tl">Einheit '+w+'</span><b class="'+(m>B*1.1?'over':'')+'">ca. '+m+' min</b><span class="ts">Budget '+B+' min</span></div>'}).join('')+'</div>';
   if(!S.length) h+='<section class="card pad"><h2>Alles stimmig</h2><p>Dein Plan deckt deine Ziele ab, und keine Übung hängt fest. Weiter so.</p></section>';
   S.forEach(function(x){
     var A=x.lib?libById(x.lib):null;
     h+='<section class="card pad revcard"><span class="rt">'+({swap:'Austauschen',add:'Dazunehmen',rm:'Herausnehmen',cap:'Kürzen'}[x.type])+'</span><h2>'+esc(x.title)+'</h2><p>'+esc(x.text)+'</p>'+(x.note?'<p class="note">'+esc(x.note)+'</p>':'')+
-      (x.type==='add'?'<div class="row" style="margin-top:8px"><span>In Einheit</span><div class="seg" role="group" aria-label="Einheit">'+['A','B'].map(function(w){return '<button data-act="revunit" data-v="'+w+'" data-k="'+esc(x.key)+'" aria-pressed="'+(((cfg.revUnit||{})[x.key]||x.unit)===w)+'">'+w+'</button>'}).join('')+'</div></div>':'')+
+      (x.type==='add'&&cfg.mode!=='free'?'<div class="row" style="margin-top:8px"><span>In Einheit</span><div class="seg" role="group" aria-label="Einheit">'+['A','B'].map(function(w){return '<button data-act="revunit" data-v="'+w+'" data-k="'+esc(x.key)+'" aria-pressed="'+(((cfg.revUnit||{})[x.key]||x.unit)===w)+'">'+w+'</button>'}).join('')+'</div></div>':'')+
       (A&&A.ladder.length>1&&x.type!=='rm'?'<p class="note" style="margin-top:6px">Start mit Stufe „'+esc(A.ladder[0])+'“, steigert sich dann automatisch.</p>':'')+
       '<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap;justify-content:flex-start"><button class="btn primary" data-act="revok" data-k="'+esc(x.key)+'">Annehmen</button><button class="btn" data-act="revno" data-k="'+esc(x.key)+'">Ablehnen</button>'+
  (x.type==='swap'||x.type==='rm'?'<button class="btn" data-act="revkeep" data-id="'+x.old+'" data-k="'+esc(x.key)+'">'+esc((getEx(x.old)||{}).name||'')+' behalten</button>':'')+'</div></section>';
@@ -3029,7 +3214,7 @@ function reviewAct(key,ok){
   cfg.learn.acc[key]=todayKey();
   if(x.type==='add'){var w=(cfg.revUnit||{})[key]||x.unit;var ne=addFromLib(x.lib,w);if(ne)showToast(ne.name+' in Einheit '+w)}
   else if(x.type==='swap'){
-    var units=['A','B'].filter(function(w){return (cfg.plan[w]||[]).indexOf(x.old)>=0});
+    var units=UNITS().filter(function(w){return (cfg.plan[w]||[]).indexOf(x.old)>=0});
     var ne2=addFromLib(x.lib,null);
     if(ne2){units.forEach(function(w){cfg.plan[w]=cfg.plan[w].map(function(id){return id===x.old?ne2.id:id})});saveCfg();showToast('Ausgetauscht: '+ne2.name)}
   }
@@ -3043,10 +3228,10 @@ function viewPlan(){
   if(reviewOpen) return viewReview();
   var wt=weekType();
   var h='<header class="top"><h1>Plan</h1>'+gearBtn()+'</header>';
-  ['A','B'].forEach(function(w){
+  UNITS().forEach(function(w){
     var pl=(cfg.plan[w]||[]).map(getEx).filter(Boolean);
     var um=unitEst(w);
-    h+='<section class="card pad"><h2>Übungen in Einheit '+w+'</h2><p class="unitest'+(um>budget()*1.1?' over':'')+'">ca. '+um+' min · Budget '+budget()+' min</p>'+(pl.length>1?'<p class="note" style="margin:-4px 0 8px">Reihenfolge: lange drücken und ziehen, oder ▲ ▼.</p>':'')+'<ul class="plist" data-w="'+w+'">'+
+    h+='<section class="card pad"><h2>'+(w==='F'?'Deine Übungen':'Übungen in Einheit '+w)+'</h2>'+(w==='F'?'<p class="note">Freies Training: Aus diesen Übungen wählst du bei jedem Training aus. Die App schlägt vor, was heute dran ist.</p>':'<p class="unitest'+(um>budget()*1.1?' over':'')+'">ca. '+um+' min · Budget '+budget()+' min</p>')+(pl.length>1?'<p class="note" style="margin:-4px 0 8px">Reihenfolge: lange drücken und ziehen, oder ▲ ▼.</p>':'')+'<ul class="plist" data-w="'+w+'">'+
       pl.map(function(e,i){return '<li class="dr" data-exid="'+e.id+'"><span class="grip" aria-hidden="true">⋮⋮</span><span class="pn">'+esc(e.name)+'</span><span class="mv"><button data-act="pmove" data-w="'+w+'" data-id="'+e.id+'" data-d="-1" aria-label="'+esc(e.name)+' nach oben"'+(i===0?' disabled':'')+'>▲</button><button data-act="pmove" data-w="'+w+'" data-id="'+e.id+'" data-d="1" aria-label="'+esc(e.name)+' nach unten"'+(i===pl.length-1?' disabled':'')+'>▼</button></span><button class="px" data-act="ptog" data-w="'+w+'" data-id="'+e.id+'" aria-label="'+esc(e.name)+' aus Einheit '+w+' entfernen">×</button></li>'}).join('')+'</ul>'+
       ((cfg.plan[w]||[]).length?'':'<p class="note">Noch keine Übungen.</p>')+pickerHtml(w)+'</section>';
   });
@@ -3359,6 +3544,7 @@ document.addEventListener('click',function(ev){
     case 'obpush': ob.push=+v; break;
     case 'obper': ob.per=+v; break;
     case 'obmin': ob.min=+v; break;
+    case 'obmode': ob.mode=v; break;
     case 'obkeep': obApply(true); obStep=null; tab='today'; showToast('Ziele gespeichert'); window.scrollTo(0,0); break;
     case 'obdone': obStep=null; tab='today'; window.scrollTo(0,0); try{audio();SFX.start()}catch(err){} setTimeout(tourStart,350); break;
     case 'tournext': tourI++; tourGo(); return;
@@ -3367,6 +3553,15 @@ document.addEventListener('click',function(ev){
     case 'obskip': cfg.onboarded=true; saveCfg(); obStep=null; tab='today'; break;
     case 'obclose': obStep=null; break;
     case 'obstart': ob=obNew(true); obStep=0; window.scrollTo(0,0); break;
+    case 'frpick': if(freePick){var fi=freePick.indexOf(id);if(fi>=0)freePick.splice(fi,1);else freePick.push(id)} break;
+    case 'frsug': freePick=freeSuggest(); break;
+    case 'frstart':
+      if(freePick&&freePick.length){var fk2=todayKey();days[fk2]=days[fk2]||{sets:[]};days[fk2].plan='F';days[fk2].custom=freePick.slice();saveDay(fk2);cfg.startedDay=fk2;saveCfg();autoOpened=false;viewEnter=true;buzz([20,40,30]);try{audio();SFX.start()}catch(err){}window.scrollTo(0,0)}
+      break;
+    case 'setmode':
+      if(v==='free'&&cfg.mode!=='free'){if(!(cfg.plan.F||[]).length)cfg.plan.F=planIds();cfg.mode='free';showToast('Freies Training: Du wählst jedes Mal selbst')}
+      else if(v==='ab'&&cfg.mode==='free'){cfg.mode='ab';if(!(cfg.plan.A||[]).length&&!(cfg.plan.B||[]).length){cfg.plan.A=[];cfg.plan.B=[];(cfg.plan.F||[]).forEach(function(id,i){cfg.plan[i%2?'B':'A'].push(id)})}showToast('Fester Plan mit A und B')}
+      saveCfg(); break;
     case 'startday': cfg.startedDay=todayKey(); saveCfg(); autoOpened=false; viewEnter=true; buzz([20,40,30]); try{audio();SFX.start()}catch(err){} window.scrollTo(0,0); break;
     case 'hday': histOpen[v]=!histOpen[v]; break;
     case 'hfil': histFil=v; histWeeks=6; histOpen={}; histPick=false; window.scrollTo(0,0); break;
@@ -3439,7 +3634,7 @@ document.addEventListener('click',function(ev){
     case 'fdelask': confirmDel=id; break;
     case 'fdel':
       cfg.exercises=cfg.exercises.filter(function(x){return x.id!==id});
-      ['A','B'].forEach(function(w){cfg.plan[w]=(cfg.plan[w]||[]).filter(function(x){return x!==id})});
+      UNITS().forEach(function(w){cfg.plan[w]=(cfg.plan[w]||[]).filter(function(x){return x!==id})});
       if(openId===id) openId=null;
       editId=null; confirmDel=null; saveCfg(); break;
     case 'budget': cfg.settings.budget=parseInt(v,10)||60; saveCfg(); break;
@@ -3461,7 +3656,7 @@ document.addEventListener('click',function(ev){
     case 'libunit': libUnits[v]=!libUnits[v]; break;
     case 'libadd':
       var la=libAdd(v);
-      if(la){libSel=null; showToast(la.name+' hinzugefügt'+((libUnits.A||libUnits.B)?' · Einheit '+['A','B'].filter(function(w){return libUnits[w]}).join(' + '):' · noch keiner Einheit zugeordnet'))}
+      if(la){libSel=null; showToast(la.name+' hinzugefügt'+((libUnits.A||libUnits.B||libUnits.F)?' · '+UNITS().filter(function(w){return libUnits[w]}).map(unitName).join(' + '):' · noch keiner Einheit zugeordnet'))}
       break;
     case 'fnew':
       var nid='x'+Date.now().toString(36);
