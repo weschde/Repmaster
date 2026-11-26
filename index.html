@@ -721,6 +721,12 @@ body.obmode .nav{display:none}
 .fr-opt:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .start.free .st-go{font-size:16px;text-align:center;line-height:1.2;padding:0 14px}
 .start.free .st-go[disabled]{opacity:.55;animation:none}
+
+.jchip{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:2px 9px;border-radius:99px;background:linear-gradient(135deg,#FFE08A,#FFC24B);color:#4A3000;font:700 12px/1.6 var(--f-body)}
+.jchip svg,.jstock svg,.jup svg{width:14px;height:14px;fill:currentColor;flex:none}
+.jchip svg path,.jstock svg path,.jup svg path{fill:#FFF6D6}
+.jstock{display:flex;align-items:center;gap:6px}
+#cele .jup{display:inline-flex;align-items:center;gap:6px;margin-top:6px;padding:4px 12px;border-radius:99px;background:linear-gradient(135deg,#FFE08A,#FFC24B);color:#4A3000;font:700 14px var(--f-body);font-style:normal;animation:recin .6s .4s cubic-bezier(.3,1.6,.5,1) both}
 </style>
 
 <div id="splash" role="dialog" aria-label="Begrüßung"><div class="glow"></div><svg id="spl-fig" viewBox="30 0 140 180" aria-hidden="true" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"><path d="M44 176V60M156 176V60" stroke-width="3" opacity=".28"/><path d="M34 60H166" stroke-width="6" stroke="#8EF0E6"/><circle id="spl-ping" cx="100" cy="60" r="4" stroke="#8EF0E6" stroke-width="2" opacity="0"/><polyline id="spl-ll" stroke-width="5.5" points="0,0 0,0 0,0"/><polyline id="spl-lr" stroke-width="5.5" points="0,0 0,0 0,0"/><polyline id="spl-torso" stroke-width="6" points="0,0 0,0"/><polyline id="spl-sh" stroke-width="6" points="0,0 0,0"/><polyline id="spl-al" stroke="#fff" stroke-width="5" points="0,0 0,0 0,0"/><polyline id="spl-ar" stroke="#fff" stroke-width="5" points="0,0 0,0 0,0"/><circle id="spl-head" r="8.5" fill="#fff" stroke="#00A19B" stroke-width="2" cx="0" cy="0"/></svg><div class="wm" aria-label="Repmaster"><span class="r" style="--i:0">R</span><span class="r" style="--i:1">e</span><span class="r" style="--i:2">p</span><span class="m" style="--i:3">m</span><span class="m" style="--i:4">a</span><span class="m" style="--i:5">s</span><span class="m" style="--i:6">t</span><span class="m" style="--i:7">e</span><span class="m" style="--i:8">r</span></div><div class="ul"></div><h1 class="tx" id="spl-h"></h1><small>Tippen zum Überspringen</small></div>
@@ -1660,13 +1666,22 @@ function weeksData(N){
   });
   return arr;
 }
+/* streak with earned jokers: every 4 goal weeks earn one joker (at most 2 in stock).
+   A missed week uses a joker automatically and the streak goes on; without one the streak starts over.
+   Paused (sick) weeks are neutral. The running week never breaks the streak.
+   Weeks before cfg.jokerFrom still get the old rule (a free joker after a goal week, at most once in 6 weeks),
+   so nobody loses a streak because the rule changed. */
+var JMAX=2, JEVERY=4;
 function streakInfo(goal){
-  var counts={}, ks=dayKeys();
-  if(!ks.length) return {n:0,jokers:[]};
-  ks.forEach(function(k){var mk=ymd(monday(parseYmd(k)));counts[mk]=(counts[mk]||0)+1});
-  var first=ymd(monday(parseYmd(ks[0]))), cur=monday(new Date()), n=(counts[ymd(cur)]||0)>=goal?1:0, i=1, lastJ=-99, jok=[];
+  var ks=dayKeys(); if(!ks.length) return {n:0,jokers:[],stock:0,prog:0};
+  var counts={}; ks.forEach(function(k){var mk=ymd(monday(parseYmd(k)));counts[mk]=(counts[mk]||0)+1});
+  var first=ymd(monday(parseYmd(ks[0]))), cur=ymd(monday(new Date())), from=cfg.jokerFrom||cur;
+  if(from<first) from=first;
+  var end=from<cur?from:cur;
+  /* phase 1: weeks before the rule change, counted backwards with the old free joker (after a goal week, once in 6 weeks) */
+  var n=0, jok=[], i=1, lastJ=-99, em=parseYmd(end);
   while(i<600){
-    var m=new Date(cur);m.setDate(m.getDate()-7*i); var mk=ymd(m);
+    var m=new Date(em);m.setDate(m.getDate()-7*i); var mk=ymd(m);
     if(mk<first) break;
     if((counts[mk]||0)>=goal){n++;i++;continue}
     if(pausedWeek(mk)){i++;continue}
@@ -1674,8 +1689,23 @@ function streakInfo(goal){
     if(i-lastJ>6&&(counts[ymd(pm)]||0)>=goal&&ymd(pm)>=first){jok.push(mk);lastJ=i;i++;continue}
     break;
   }
-  return {n:n,jokers:jok};
+  var stock=Math.min(JMAX,Math.floor(n/JEVERY)), prog=n%JEVERY;
+  /* phase 2: from the rule change on, forwards with earned jokers */
+  var w=parseYmd(end);
+  while(ymd(w)<cur){
+    var wk=ymd(w);
+    if((counts[wk]||0)>=goal){n++;prog++;if(prog>=JEVERY){prog=0;if(stock<JMAX)stock++}}
+    else if(pausedWeek(wk)){}
+    else if(stock>0&&n>0){stock--;jok.push(wk)}
+    else {n=0;prog=0}
+    w.setDate(w.getDate()+7);
+  }
+  /* the running week never breaks the streak, it only adds once the goal is reached */
+  if((counts[cur]||0)>=goal){n++;prog++;if(prog>=JEVERY){prog=0;if(stock<JMAX)stock++}}
+  return {n:n,jokers:jok,stock:stock,prog:prog};
 }
+function jokerChip(goal){var S=streakInfo(goal);return S.stock>0?'<span class="jchip" title="Ein Joker rettet automatisch eine verpasste Woche">'+JOKSVG+S.stock+' Joker</span>':''}
+var JOKSVG='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M12 8.2l1.2 2.5 2.7.3-2 1.8.6 2.7-2.5-1.4-2.5 1.4.6-2.7-2-1.8 2.7-.3z"/></svg>';
 function streakWeeks(goal){return streakInfo(goal).n}
 function niceStep(mx){
   var raw=(mx/4)||1, mag=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/mag;
@@ -1825,8 +1855,8 @@ function viewStats(){
     (FN.carried?'<p class="note" style="margin:2px 0 0">Die Glut glüht noch: Deine Flamme ist nicht erloschen, nur etwas zurückgefallen.</p>':'')+
     (lvl>0||streak>0?'<div class="flbar" role="img" aria-label="Noch '+fn.n+' Wochen bis zur nächsten Flammenstufe"><i style="width:'+pct+'%"></i></div><p class="note" style="margin:4px 0 0">Noch '+fn.n+(fn.n===1?' Woche':' Wochen')+(fn.ring?' bis zum nächsten goldenen Ring':' bis die Flamme wächst')+' · diese Woche '+thisN+'/'+goal+'</p>':
       '<p class="note" style="margin:4px 0 0">Erreiche dein Wochenziel von '+goal+' Trainings, dann zündet die Flamme.</p>')+
-    (function(){var J=streakInfo(goal).jokers;return J.length?'<p class="joker">Joker eingesetzt: '+J.map(function(k){return 'KW '+isoWeek(parseYmd(k))}).join(', ')+'</p>':''})()+
-    '<details class="more"><summary>So zählt die Serie</summary><p>Eine Woche zählt, wenn du dein Wochenziel von '+goal+' Trainings erreichst. Die laufende Woche bricht die Serie nie. Joker: Eine verpasste Woche lässt die Flamme nicht erlöschen, wenn du davor und danach dein Ziel schaffst, höchstens einmal in 6 Wochen. Krank-Pausen zählen nicht. Die Flamme wächst nach 1, 2, 4, 6, 8, 12, 16 und 26 Wochen, danach gibt es alle 26 Wochen einen goldenen Ring. Fällt eine Woche ohne Joker aus, beginnt die Zählung neu, die Flamme fällt aber nur zwei Stufen pro verpasster Woche zurück.</p></details></div></section>';
+    (function(){var SI=streakInfo(goal),J=SI.jokers,h2='<p class="joker jstock">'+JOKSVG+'<span>'+(SI.stock?'<b>'+SI.stock+(SI.stock===1?' Joker':' Joker')+'</b> bereit'+(SI.stock>=JMAX?' (voll)':' · nächster nach '+(JEVERY-SI.prog)+(JEVERY-SI.prog===1?' Zielwoche':' Zielwochen')):'Nächster Joker nach '+(JEVERY-SI.prog)+(JEVERY-SI.prog===1?' Zielwoche':' Zielwochen'))+'</span></p>';return h2+(J.length?'<p class="joker">Joker eingesetzt: '+J.map(function(k){return 'KW '+isoWeek(parseYmd(k))}).join(', ')+'</p>':'')})()+
+    '<details class="more"><summary>So zählt die Serie</summary><p>Eine Woche zählt, wenn du dein Wochenziel von '+goal+' Trainings erreichst. Die laufende Woche bricht die Serie nie. Joker: Alle 4 Wochen, in denen du dein Ziel schaffst, verdienst du einen Joker, höchstens 2 auf Vorrat. Verpasst du eine Woche, setzt die App automatisch einen ein und deine Serie läuft weiter. Krank-Pausen zählen nicht. Die Flamme wächst nach 1, 2, 4, 6, 8, 12, 16 und 26 Wochen, danach gibt es alle 26 Wochen einen goldenen Ring. Fällt eine Woche ohne Joker aus, beginnt die Zählung neu, die Flamme fällt aber nur zwei Stufen pro verpasster Woche zurück.</p></details></div></section>';
   if(!statEx||!getEx(statEx)){
     var wd=cfg.exercises.filter(function(x){return sessionsOf(x.id).length})[0];
     statEx=(wd||cfg.exercises[0]||{}).id;
@@ -2325,7 +2355,7 @@ function freeStart(fk){
       return '<button class="fr-opt'+(on?' on':'')+'" data-act="frpick" data-id="'+e.id+'" aria-pressed="'+on+'"><span><b>'+esc(e.name)+'</b><small>'+esc(subText(e))+'</small></span><em class="'+(warn?'warn':'')+'">'+last+'</em><i aria-hidden="true">✓</i></button>'}).join(''):'<p class="st-m">Noch keine Übungen. Lege sie unter „Plan“ an.</p>')+'</div>'+
     '<button class="st-go" data-act="frstart"'+(sel.length?'':' disabled')+'><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>'+(sel.length?'Training starten · '+sel.length+(sel.length===1?' Übung':' Übungen')+' · ca. '+min+' min':'Wähle mindestens eine Übung')+'</button>'+
     '</section>';
-  h+='<p class="st-row">'+((sw>0||F.l>0)?'<button class="flm" data-act="tab" data-v="stats" aria-label="Flamme ansehen">'+flameSvg(sw,24,F.l,F.rings)+'</button><span><b>'+sw+'</b>'+(sw===1?' Woche':' Wochen')+' in Serie</span><span aria-hidden="true">·</span>':'')+'<span>diese Woche <b>'+wk+'</b>/'+goal+'</span></p>';
+  h+='<p class="st-row">'+((sw>0||F.l>0)?'<button class="flm" data-act="tab" data-v="stats" aria-label="Flamme ansehen">'+flameSvg(sw,24,F.l,F.rings)+'</button><span><b>'+sw+'</b>'+(sw===1?' Woche':' Wochen')+' in Serie</span><span aria-hidden="true">·</span>':'')+'<span>diese Woche <b>'+wk+'</b>/'+goal+'</span>'+jokerChip(goal)+'</p>';
   h+='<div class="st-sub"><button class="linkbtn" data-act="frsug">Vorschlag wiederherstellen</button><button class="linkbtn" data-act="tab" data-v="plan">Übungen verwalten</button></div>';
   return h;
 }
@@ -2345,7 +2375,7 @@ function startScreen(wt,list,fk){
     (mode?'<span class="st-pill">'+esc(mode)+'</span>':'')+'</div>'+
     '<button class="st-go" data-act="startday"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>Training starten</button>'+
     '</section>';
-  h+='<p class="st-row">'+((sw>0||F.l>0)?'<button class="flm" data-act="tab" data-v="stats" aria-label="Flamme ansehen">'+flameSvg(sw,24,F.l,F.rings)+'</button><span><b>'+sw+'</b>'+(sw===1?' Woche':' Wochen')+' in Serie</span><span aria-hidden="true">·</span>':'')+'<span>diese Woche <b>'+wk+'</b>/'+goal+'</span></p>';
+  h+='<p class="st-row">'+((sw>0||F.l>0)?'<button class="flm" data-act="tab" data-v="stats" aria-label="Flamme ansehen">'+flameSvg(sw,24,F.l,F.rings)+'</button><span><b>'+sw+'</b>'+(sw===1?' Woche':' Wochen')+' in Serie</span><span aria-hidden="true">·</span>':'')+'<span>diese Woche <b>'+wk+'</b>/'+goal+'</span>'+jokerChip(goal)+'</p>';
   h+='<div class="st-sub"><button class="linkbtn" data-act="tedit">Heute anpassen</button></div>';
   if(nh) h+='<p class="st-note">'+nh+(nh===1?' Hinweis wartet':' Hinweise warten')+' im Training auf dich.</p>';
   return h;
@@ -2643,7 +2673,7 @@ function editForm(e){
 }
 var formType=null;
 function gearBtn(){return '<button class="themebtn gearbtn" data-act="tab" data-v="settings" aria-label="Einstellungen">'+GEAR+'</button>'}
-var APPVER='25.11.2026 (Version 28)';
+var APPVER='26.11.2026 (Version 29)';
 function logicHtml(){
   var st=cfg.settings, cyc=st.cycle||6, g=st.goal||3;
   function sec(t,items){return '<h4>'+t+'</h4><ul>'+items.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
@@ -2675,7 +2705,7 @@ function logicHtml(){
      'Abgelehnte Vorschläge kommen nicht wieder. Deine typische Trainingsdauer und Beschwerden pro Übung fließen in die Auswertung ein.'
    ])+
    sec('Flamme',[
-     'Eine Woche zählt, wenn du '+g+' Trainings schaffst. Ein Joker überbrückt eine verpasste Woche (höchstens einmal in 6 Wochen), Krank-Pausen zählen nicht.',
+     'Eine Woche zählt, wenn du '+g+' Trainings schaffst. Alle 4 Zielwochen gibt es einen Joker (höchstens 2 auf Vorrat). Er rettet automatisch eine verpasste Woche, Krank-Pausen zählen nicht.',
      'Die Flamme wächst nach 1, 2, 4, 6, 8, 12, 16 und 26 Wochen: größer, heller, mehr Funken, ab 8 Wochen mit Aura, ab 16 mit Blitzen, ab 26 in Gold. Danach alle 26 Wochen ein goldener Ring. Eine verpasste Woche ohne Joker setzt die Wochenzahl zurück, die Flamme fällt aber nur zwei Stufen pro verpasster Woche.'
    ])+
    '<p class="note">Die Schwellen sind Faustregeln aus der Trainingspraxis, keine exakten Studienwerte. Leiter-Obergrenze, Bereiche und Stufen kannst du pro Übung ändern.</p></div>';
@@ -3958,7 +3988,8 @@ function celebrateFinish(k){
    (S.prs.length?'<p class="pr">★ '+S.prs.slice(0,3).map(esc).join('<br>★ ')+'</p>':'')+
    (w>0?(function(){var F=flameNow(), seen=cfg.flameSeen==null?F.l:cfg.flameSeen, up=F.l>seen;
       celeUp=up; if(cfg.flameSeen!==F.l){cfg.flameSeen=F.l;saveCfg()}
-      return '<div class="fl'+(up?' up':'')+'"><div class="flstage lv'+F.l+'">'+flameSvg(w,F.l>=5?170:Math.max(110,90+F.l*14),F.l,F.rings)+'</div>'+(up?'<em class="lvup">Deine Flamme ist gewachsen!</em>':'')})()+(S.reached?'<em class="plus1">+1</em>':'')+'<b>'+w+(w===1?' Woche':' Wochen')+' in Serie</b><span>'+(S.reached?'Wochenziel erreicht – die Flamme wächst':(S.cnt+' von '+S.goal+' Trainings diese Woche'))+'</span></div>':
+      var SJ=streakInfo(cfg.settings.goal||3), jSeen=cfg.jokerSeen==null?SJ.stock:cfg.jokerSeen, jUp=SJ.stock>jSeen; if(cfg.jokerSeen!==SJ.stock){cfg.jokerSeen=SJ.stock;saveCfg()}
+      return '<div class="fl'+(up?' up':'')+'"><div class="flstage lv'+F.l+'">'+flameSvg(w,F.l>=5?170:Math.max(110,90+F.l*14),F.l,F.rings)+'</div>'+(up?'<em class="lvup">Deine Flamme ist gewachsen!</em>':'')+(jUp?'<em class="jup">'+JOKSVG+'Joker verdient! Er rettet eine verpasste Woche.</em>':'')})()+(S.reached?'<em class="plus1">+1</em>':'')+'<b>'+w+(w===1?' Woche':' Wochen')+' in Serie</b><span>'+(S.reached?'Wochenziel erreicht – die Flamme wächst':(S.cnt+' von '+S.goal+' Trainings diese Woche'))+'</span></div>':
      '<div class="fl"><span>'+S.cnt+' von '+S.goal+' Trainings diese Woche'+(S.cnt<S.goal?' – noch '+(S.goal-S.cnt)+' bis zur ersten Flamme':'')+'</span></div>')+
    '<button class="btn" data-cele="x">Weiter</button>';
   document.body.appendChild(el);
@@ -4075,7 +4106,7 @@ document.addEventListener('change',function(ev){
 });
 
 render(); renderDock();
-initStore().catch(function(){}).then(function(){loading=false;autoOpened=false;if(!cfg.onboarded){if(dayKeys().length){cfg.onboarded=true;saveCfg()}else{ob=obNew(false);obStep=0}}autoApply();if(cfg.flameSeen==null&&dayKeys().length){var F0=flameNow();cfg.flameSeen=F0.l;saveCfg()}render()});
+initStore().catch(function(){}).then(function(){loading=false;autoOpened=false;if(!cfg.jokerFrom){var jm=monday(new Date());jm.setDate(jm.getDate()+7);cfg.jokerFrom=ymd(jm);if(cfg.jokerSeen==null)cfg.jokerSeen=streakInfo(cfg.settings.goal||3).stock;saveCfg()}if(!cfg.onboarded){if(dayKeys().length){cfg.onboarded=true;saveCfg()}else{ob=obNew(false);obStep=0}}autoApply();if(cfg.flameSeen==null&&dayKeys().length){var F0=flameNow();cfg.flameSeen=F0.l;saveCfg()}render()});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&autoApply()){render()}});
 (function(){
   var view=$('#view');
